@@ -1,0 +1,23 @@
+immediate effect:
+
+
+1) started past and discovered
+2) started today and discovered
+3) started past and not discovered
+
+4) started today and not discovered
+5) started tommorrow
+
+--------------
+
+1) set cell end date to today and start new cell from tommorrow
+2) set cell end date to today and start new cell from tommorrow
+3) set cell end date to yesterday and start new cell from today
+
+4) simply overwrite
+5) simply overwrite
+
+
+delayed effect:
+
+forcefully discover cell and perform above steps
