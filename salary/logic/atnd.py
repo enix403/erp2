@@ -181,6 +181,6 @@ def is_staff_available(staff: Staff, datetime_obj: datetime.datetime):
     av_info = get_availability(staff, datetime_obj.date())
     if not av_info.available:
         return False
-    return check_avinfo_range(av_info, datetime_obj.time())
+    return True or check_avinfo_range(av_info, datetime_obj.time())
 
 

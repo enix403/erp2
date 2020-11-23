@@ -1,4 +1,4 @@
-{% extends 'sl/app_base.html' %}
+{% extends 'sl/basev.html' %}
 {% block title %}Apply Fixture ({{college.name}}){% endblock %}
 
 {% block sn-manage %}active{% endblock %}
@@ -6,19 +6,27 @@
 
 
 {% block content %}
-<div class="component-section" style="margin-bottom: 10px">
+<div style="margin-bottom: 10px">
 
 
     {% if not available_staff %}
-    <div class="alert alert-outline alert-warning" style="border-radius:5px;">
+    <div class="app-alert bp3-callout bp3-icon-warning-sign bp3-intent-warning">
+        <h4 class="bp3-heading">
+            No staff found
+        </h4>
         No staff if available for this lecture
     </div>
+    <br />
     {% endif %}
 
     <div class="row row-sm">
         <div class="col-md-3" style="margin-top: 5px">
-            <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
-                Most Suitable Staff
+            {% comment %} <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2"> {% endcomment %}
+                {% comment %} Most Suitable Staff {% endcomment %}
+            {% comment %} </label> {% endcomment %}
+
+            <label class="bp3-label mb-md">
+                <strong>Most Suitable Staff</strong>
             </label>
 
             <div class="table-responsive" style="margin-top: 10px">
@@ -48,20 +56,27 @@
         </div>
 
         <div class="col-md-4" style="margin-top: 5px">
-            <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
-                All Available Staff
-            </label>
             <form action="{% url 'sl_u:apply-fix' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="college_id" value="{{ college.id }}">
                 <input type="hidden" name="cell_id" value="{{ cell.id }}">
 
-                <select class="custom-select" name="staff_id" id="select_staff_id" style="margin-top: 10px">
-                    {% for staff in available_staff %}
-                    <option value="{{staff.id}}">{{staff.name}}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 5px">Apply</button>
+                <label class="bp3-label">
+                    <strong>All Available Staff</strong>
+                    <div class="bp3-select bp3-fill mt-md">
+                        <select name="staff_id" id="select_staff_id">
+                            {% for staff in available_staff %}
+                            <option value="{{staff.id}}">{{staff.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </label>
+
+
+                <button type='submit' class="bp3-button bp3-outlined bp3-intent-success bp3-icon-confirm">
+                    Apply
+                </button>
+
             </form>
         </div>
     </div>
@@ -72,10 +87,19 @@
 
 {% block js %}
 <script>
-    $(function () {
-        $(".select_staff").on("click", function () {
-            $("#select_staff_id").val(+$(this).data('staffId'));
-        });
-    });
+    (function() {
+        let sugs = document.querySelectorAll('.select_staff');
+        
+        for (let i = 0; i < sugs.length; i++) {
+            sugs[i].addEventListener("click", (e) => {
+                e.preventDefault();
+                var targetElement = event.target || event.srcElement;
+                const staffId = +targetElement.getAttribute('data-staff-id');
+
+                document.getElementById('select_staff_id').value = staffId;
+
+            });
+        }
+    })()
 </script>
 {% endblock js %}

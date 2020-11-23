@@ -1,5 +1,6 @@
-{% extends 'sl/app_base.html' %}
-{% block title %}Lecture Sheet <small>({{faculty_param.name}})</small>{% endblock %}
+{% extends 'sl/basev.html' %}
+{% load static %}
+{% block title %}Lecture Sheet <small>({{faculty.name}})</small>{% endblock %}
 
 {% block sn-reports %}active{% endblock %}
 {% comment %} {% block sn-rp-atndsheet %}active{% endblock %} {% endcomment %}
@@ -7,7 +8,7 @@
 {% block content %}
 <div class="component-section" style="margin-bottom: 10px">
     <div class="table-responsive" style="margin-top: 10px">
-        <table class="table table-sm table-hover table-bordered sheet">
+        <table id='lecture_sheet' class="table table-sm table-hover table-bordered sheet">
             <thead>
                 <tr>
                     <th>Sections</th>
@@ -37,7 +38,7 @@
 
 
                 <tr>
-                    <th style="text-align: center">Fxitures</th>
+                    <th style="text-align: center">Fixtures</th>
                 </tr>
 
                 {% for row in lecture_sheet.fixtures %}
@@ -74,6 +75,14 @@
 
 
                 <tr>
+                    <th>Agreed Workload</th>
+                    {% for c in lecture_sheet.meta.w_agreed  %}
+                    <td>{{c}}</td>
+                    {% endfor %}
+                </tr>
+
+
+                <tr>
                     <th>Extra Lectures</th>
                     {% for c in lecture_sheet.meta.extra  %}
                     <td>{{c}}</td>
@@ -88,3 +97,8 @@
     </div>
 </div>
 {% endblock content %}
+
+
+{% block js %}
+<script src="{% static "js/tableToExcel.js" %}"></script>
+{% endblock js %}

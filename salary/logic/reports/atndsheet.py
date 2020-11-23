@@ -17,13 +17,15 @@ from base import helpers
 
 from ...models import (
     College,
-    RoleParam,
+    Staff,
 )
 
 from ..holidays import HolidayManager
-from ..atnd import AttendanceManager
+# from ..atnd import AttendanceManager
 from .. import roles
 from .. import leave_types
+
+from ..atnd_new import AttendanceManager
 
 
 class AtndSheetStaffRow:
@@ -45,7 +47,7 @@ class AtndSheetType:
 
 
 
-def _fetch_role_params(
+def _fetch_staff(
     college: College,
     date_start: datetime.date,
     date_end: datetime.date,
@@ -57,20 +59,19 @@ def _fetch_role_params(
     # mid = Q(date_start__gte=date_start) & Q(date_end__lte=date_end)
 
     if sheet_type == AtndSheetType.FACULTY:
-        return college.role_params.filter(
+        return college.staffs.filter(
             # end_1 | end_2 | mid,
-            role=roles.ROLE_FACULTY,
-            main=1
+            main_role=roles.ROLE_FACULTY,
             # active=1
         )
     else:
-        return college.role_params.exclude(
-            role=roles.ROLE_FACULTY,
-        ).filter(
-            main=1
+        return college.staffs.exclude(
+            main_role=roles.ROLE_FACULTY,
+        )
+        # ).filter(
             # end_1 | end_2 | mid,
             # active=1
-        )
+        # )
 
 
 
@@ -85,15 +86,15 @@ def make_atnd_sheet(
     hm = HolidayManager(college, date_start, date_end)
     
     plus_one_day = datetime.timedelta(days=1)
-    rp_queryset = _fetch_role_params(college, date_start, date_end, sheet_type)
+    rp_queryset = _fetch_staff(college, date_start, date_end, sheet_type)
     
     if sheet_type == AtndSheetType.STAFF:
-        role_params: List[RoleParam] = list(rp_queryset)
+        staff_lst: List[Staff] = list(rp_queryset)
     else:
-        role_params: List[RoleParam] = list(rp_queryset.prefetch_related('fac_subjects', 'fac_subjects__target_subject'))
+        staff_lst: List[Staff] = list(rp_queryset.prefetch_related('fac_subjects', 'fac_subjects__target_subject'))
     
     sheet_rows: Dict[int, AtndSheetStaffRow] = defaultdict(AtndSheetStaffRow)
-    for rp in role_params:
+    for rp in staff_lst:
         row = sheet_rows[rp.pk]
         row.name = rp.name
         if sheet_type == AtndSheetType.FACULTY:
@@ -104,7 +105,7 @@ def make_atnd_sheet(
                 row.info = '--Error--'
                 
         else:
-            row.info = roles.role_from_id(rp.role).name
+            row.info = roles.role_from_id(rp.main_role).name
             
     
     current = date_start
@@ -112,14 +113,14 @@ def make_atnd_sheet(
     
     while current <= date_end:
         is_holiday = hm.is_holiday(current)
-        for r in role_params:
+        for r in staff_lst:
             data_row = sheet_rows[r.pk]
             
             if is_holiday:
                 data_row.days.append('H')
                 continue
             
-            atnd_row = atnd_manager.get_staff_atnd_row(r.staff_id, current)
+            atnd_row = atnd_manager.get_staff_atnd_row(r.pk, current)
             
             if atnd_row is not None and atnd_row.leave_status == leave_types.STATUS_PRESENT:
                 data_row.days.append('P')

@@ -4,6 +4,8 @@ from typing import Optional, List
 
 from django.db.models import Q
 
+from .. import utils
+
 from ..models import (
     College,
     Holiday
@@ -30,22 +32,28 @@ class HolidayManager:
         
         # hl_queryset = None
         
-        if date_end is None or date_start == date_end:
-            hl_queryset = Holiday.objects.filter(
-                college=college,
-                date_start__lte=date_start,
-                date_end__gte=date_start
-            )
-        else:
-            # worked this out on paper, it's kinda hard to wrap in head (a warning)
-            end_1 = Q(date_start__lte=self.date_start) & Q(date_end__gte=self.date_start)
-            end_2 = Q(date_start__lte=self.date_end) & Q(date_end__gte=self.date_end)
-            mid = Q(date_start__gte=self.date_start) & Q(date_end__lte=self.date_end)
+        # if date_end is None or date_start == date_end:
+        #     hl_queryset = Holiday.objects.filter(
+        #         college=college,
+        #         date_start__lte=date_start,
+        #         date_end__gte=date_start
+        #     )
+        # else:
+        #     # worked this out on paper, it's kinda hard to wrap in head (a warning)
+        #     end_1 = Q(date_start__lte=self.date_start) & Q(date_end__gte=self.date_start)
+        #     end_2 = Q(date_start__lte=self.date_end) & Q(date_end__gte=self.date_end)
+        #     mid = Q(date_start__gte=self.date_start) & Q(date_end__lte=self.date_end)
             
-            hl_queryset = Holiday.objects.filter(
-                end_1 | end_2 | mid,
-                college=college,
-            ).order_by('date_start')
+        #     hl_queryset = Holiday.objects.filter(
+        #         end_1 | end_2 | mid,
+        #         college=college,
+        #     ).order_by('date_start')
+        
+        hl_queryset = utils.fetch_date_range(
+            Holiday.objects.filter(college=college),
+            date_start,
+            date_end
+        ).order_by('date_start')
         
         self._holidays_repo = list(hl_queryset)
         

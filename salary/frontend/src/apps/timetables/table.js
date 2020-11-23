@@ -1,5 +1,15 @@
 import React from 'react';
 
+// array[Math.floor(Math.random() * array.length)];
+const allIntents = ['danger', 'warning', 'success', 'primary'];
+// const allIntents = ['danger'];
+
+function getRandomIntent() {
+    return allIntents[Math.floor(Math.random() * allIntents.length)];
+}
+
+
+
 class TimeTable extends React.Component {
 
     LECTURE_NORMAL = 0;
@@ -8,7 +18,20 @@ class TimeTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.lectureCount = this.props.tableData.lectures.length;
+        this.lectureCount = window.tableData.lectures.length;
+        this.daysLookup = this.props.daysLookup;
+
+        this.subjectsLookup = {};
+        for (let i = 0; i < window.subjectsData.length; i++) {
+            const subject = window.subjectsData[i];
+            this.subjectsLookup[subject.id] = subject;
+        }
+
+        this.facultyLookup = {};
+        for (let i = 0; i < window.facultyData.length; i++) {
+            const faculty = window.facultyData[i];
+            this.facultyLookup[faculty.id] = faculty;
+        }
     }
 
     shouldComponentUpdate() {
@@ -17,7 +40,7 @@ class TimeTable extends React.Component {
 
     makeLectureHeaders() {
         let headers = [];
-        const lectures = this.props.tableData.lectures;
+        const lectures = window.tableData.lectures;
 
         for (let i = 0, w = 1; i < lectures.length; i++) {
             const lec = lectures[i];
@@ -32,6 +55,16 @@ class TimeTable extends React.Component {
         return headers;
     }
 
+    
+    _constructCellRepeatTag(ranges) {
+        return ranges.map((range) => {
+            // return "Everyday" instead of "Monday-Saturday"
+            if (range[0] == 1 && range[1] == 6) {
+                return 'Everyday';
+            }
+            return `${this.daysLookup[range[0]]}-${this.daysLookup[range[1]]}`;
+        }).join(',') + ':';
+    }
 
 
     _constructCell(cell) {
@@ -42,34 +75,35 @@ class TimeTable extends React.Component {
 
 
         return (
-            <React.Fragment>
-
+            <>
                 {cell.fragments.map((frag, i) => {
                     return (
                         <React.Fragment key={i}>
                             <span
-                                className="bp3-tag bp3-minimal bp3-intent-primary mr-tag"
+                                className={`bp3-tag bp3-minimal bp3-intent-${getRandomIntent()} mr-tag`}
                             >
-                                {frag.start}-{frag.end}:
+                                {this._constructCellRepeatTag(frag.ranges)}
                             </span>
-                            {frag.faculty} ({frag.subject})
+                            {this.facultyLookup[frag.facultyId].name} ({this.subjectsLookup[frag.subjectId].name})
                             <br />
                         </React.Fragment>
                     );
                 })}
-            </React.Fragment>
+            </>
         );
 
     }
 
     constructCellsRowMarkup(cells) {
+
         let cellsRow = [];
 
-        const cellsSorted = cells.concat().sort((c1, c2) => c1.lectureIndex > c2.lectureIndex);
+        const cellsSorted = cells.concat().sort((c1, c2) => c1.lectureIndex - c2.lectureIndex);
 
         let targetLectureIndex = 0;
         let i = 0;
         while (i < cellsSorted.length) {
+
             let currentCell = cellsSorted[i];
             while (targetLectureIndex < currentCell.lectureIndex) {
                 cellsRow.push(
@@ -94,6 +128,7 @@ class TimeTable extends React.Component {
         }
 
         while (targetLectureIndex < this.lectureCount) {
+
             // cellsRow.push("N/A");
             cellsRow.push(
                 {
@@ -104,15 +139,15 @@ class TimeTable extends React.Component {
             targetLectureIndex++;
         }
 
+
+
         return cellsRow;
     }
 
 
     render() {
 
-        console.log("In TimeTable render()");
-
-        const { lectureTimes, sections } = this.props.tableData;
+        const { lectureTimes, sections } = window.tableData;
 
         return (
             <table className="table table-sm table-bordered center-table">

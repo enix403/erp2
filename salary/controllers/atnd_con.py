@@ -19,12 +19,12 @@ from ..models import (
 )
 
 from ..logic import leave_types
-from ..logic import roles
 from ..logic import atnd as l_atnd
 from ..logic import holidays as l_holidays
 
 from ..auth.validation import validate_college
 
+from .. import utils
 
 
 class AttendanceDisplayRow:
@@ -60,24 +60,17 @@ def _get_available_leaves(staff: Staff, atnd_row: AttendanceRow):
     return leaves
 
 
-def _get_suffix(staff):
-    return 'F' if helpers.get_first([r for r in staff.role_params.all() if r.main == 1]).role == roles.ROLE_FACULTY else 'A'
-
 def _generate_atnd_rows(college: College, date_obj: datetime.date):
     atnd_rows = []
     
-    staff_atnd_rows_db = list(AttendanceRow.objects.filter(m_date=date_obj, latest=1))
-
-
-    staffs_db = college.staffs.order_by('person__name').select_related('person').prefetch_related('role_params').all()
+    staff_rows_db = list(AttendanceRow.objects.filter(m_date=date_obj, latest=1))
     
-    for staff in staffs_db:  # type: Staff
-        staff_row = helpers.get_first([r for r in staff_atnd_rows_db if r.staff_id == staff.pk])
-
+    for staff in utils.college_active_staff(college).order_by('name'):  # type: Staff
+        staff_row = helpers.get_first([r for r in staff_rows_db if r.staff_id == staff.pk])
 
         atnd_display_row = AttendanceDisplayRow()
         atnd_display_row.staff_id = staff.id
-        atnd_display_row.staff_name = staff.person.name + " (" +  _get_suffix(staff) + ")"
+        atnd_display_row.staff_name = f'{staff.name} ({staff.role_suffix})'
         if staff_row == None:
             atnd_display_row.time_in = ''
             atnd_display_row.time_out = ''
@@ -101,6 +94,7 @@ def _generate_atnd_rows(college: College, date_obj: datetime.date):
 
 
 def is_atnd_open(college, date):
+    # return True
     holiday = l_holidays.HolidayManager.make_quick(college, date)
     if holiday is None:
         return True
@@ -126,7 +120,7 @@ class AttendanceView(View):
             'atnd_rows': rows,
             'is_closed': not is_open,
         })
-
+        
 
 
 class Action_UpdateAtnd(View):
@@ -149,6 +143,7 @@ class Action_UpdateAtnd(View):
         if not leave_types.is_leave_valid(leave_status):
             raise DisplayToUserException("Invalid attendance status")
 
+    
         payload = l_atnd.AttendancePayload()
         payload.leave_status = leave_status
         
@@ -161,10 +156,11 @@ class Action_UpdateAtnd(View):
             payload.time_out = datetime_parser.parse(time_out)
         except:
             payload.time_out = None
-
+            
         # assume present if time in is given
         if leave_status == leave_types.STATUS_UNSPEC and payload.time_in is not None:
             payload.leave_status = leave_types.STATUS_PRESENT
+
 
         return payload
 

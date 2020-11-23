@@ -1,10 +1,12 @@
 from __future__ import annotations
 import datetime
+# import time
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..models import (
-        RoleParam
+        RoleParam,
+        Staff
     )
 
 from django.shortcuts import render, reverse
@@ -25,6 +27,8 @@ from ..models import (
     College,
 )
 
+from .. import utils
+
 
 class MainAdminReportsView(View):
     def get(self, req):
@@ -36,7 +40,7 @@ class MainAdminReportsView(View):
             if user_college_pk == 0 or c.pk == user_college_pk:
 
                 faculty = []
-                for f in c.role_params.filter(role=roles.ROLE_FACULTY): #type: RoleParam
+                for f in utils.college_active_staff(c).filter(has_faculty=1): #type: Staff
                     faculty.append({
                         'id': f.pk,
                         'name': f.name,
@@ -109,8 +113,6 @@ class AtndSheetView(View):
         })
 
 
-
-
 class LectureSheetView(View):
     def get(self, req):
 
@@ -124,14 +126,13 @@ class LectureSheetView(View):
         def _gen_exp(msg):
             return DisplayToUserException(user_msg=msg, route_name="sl_u:view-reports-main")
 
-        faculty_param_id = helpers.to_int(bag.get('faculty_param_id'))
+        faculty_id = helpers.to_int(bag.get('faculty_param_id'))
         
-        
-        if faculty_param_id == -1:
+        if faculty_id == -1:
             raise _gen_exp("NOT_IMPLEMENTED")
         
-        faculty_param = college.role_params.filter(pk=faculty_param_id, role=roles.ROLE_FACULTY).first()
-        if faculty_param is None:
+        faculty = college.staffs.filter(pk=faculty_id, has_faculty=1).first()
+        if faculty is None:
             raise _gen_exp("Faculty not found")
 
         try:
@@ -147,7 +148,16 @@ class LectureSheetView(View):
         if date_start is None or date_end is None or date_end < date_start:
             raise _gen_exp("Invalid date range")
 
-        sheet = l_lecturesheet.make_lecture_sheet(college, faculty_param, date_start, date_end)
+
+        # start = time.time()
+        sheet = l_lecturesheet.make_lecture_sheet(college, faculty, date_start, date_end)
+        # print()
+        # print()
+        # print()
+        # print("Time Of Execution: ", time.time() - start)
+        # print()
+        # print()
+        
         day_headers = []
 
         current = date_start
@@ -162,7 +172,7 @@ class LectureSheetView(View):
 
         return render(req, 'sl/reports/lecsheet.html', {
             'college': college,
-            'faculty_param': faculty_param,
+            'faculty': faculty,
             'day_headers': day_headers,
             'lecture_sheet': sheet
         })

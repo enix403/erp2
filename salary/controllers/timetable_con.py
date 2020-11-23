@@ -1,222 +1,233 @@
 from __future__ import annotations
 # from typing import Optional, List
 import json
-import datetime
-from dateutil import parser as datetime_parser
+from jsonschema import validate
+# from dateutil import parser as datetime_parser
 
 from django.views import View
-from django.shortcuts import render, reverse, redirect
+from django.shortcuts import render, reverse
 from django.contrib import messages
 from django.http import Http404
+# from django.middleware.csrf import get_token
 
-import base.helpers as helpers
+from base import helpers, datetimeformat
 
 from .execptions import DisplayToUserException
 from ..models import (
-    College, 
-    TimeTable, 
-    RoleParam, 
+    College,
+    # TimeTable,
+    # RoleParam,
+    TimeTable,
     Subject,
-    # TableActivationHistory
 )
 
-from ..logic import timetable as l_timetable
-from ..logic import lecture as l_lecture
-from ..logic import roles
-from ..logic.constants import LectureType, StaffStatus
+from ..logic.constants import StaffStatus
+# from ..logic import table as l_timetable
 
-from . import internals
+from ..logic.table import cellmanager, tablectrl
+from ..logic.table.utils import parse_policy_str
+
 
 from ..auth.validation import validate_college
 
+from .. import utils
+
+
+class Action_UpdateCell(View):
+    
+    cell_payload_schema = {
+        'type': 'array',
+        'items': {
+            'type': 'object',
+            'properties': {
+                'facultyId': {'type': 'number'},
+                'subjectId': {'type': 'number'},
+                'ranges': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'array',
+                        'items': {'type': 'number'},
+                        'minItems': 2,
+                        'maxItems': 2,
+                    }
+                }
+            }
+        }
+    }
+    
+    def post(self, req):
+        bag = helpers.get_bag(req)
+
+        try:
+            fragments_data = json.loads(bag.get("fragments_json", "[]"))
+            validate(instance=fragments_data, schema=self.cell_payload_schema)
+
+        except:
+            raise DisplayToUserException('An error occured (ERR_INVALID_PAYLOAD)')
+        
+        college = College.objects.filter(pk=helpers.to_int(bag.get('college_id'))).first()
+        if college is None:
+            raise DisplayToUserException('An error occured (College not found)')
+        
+        active_days = []
+
+        invalid = False
+        
+        active_staff_ids = set(utils.college_active_staff(college).values_list('id', flat=True))
+        subject_ids = set(Subject.objects.values_list('id', flat=True))
+
+        for frag in fragments_data:
+            ranges = frag['ranges']
+            
+            if frag['facultyId'] not in active_staff_ids:
+                raise DisplayToUserException('An error occured (Some of the staff not found)')
+            
+            if frag['subjectId'] not in subject_ids:
+                raise DisplayToUserException('An error occured (Some of the subjects not found)')
+            
+            for start, end in ranges:
+
+                if start > end:
+                    invalid = True
+                    break
+
+                active_days.extend(range(start, end + 1))
+
+        # check for duplicates :)
+        if len(active_days) != len(set(active_days)):
+            invalid = True
+
+        if not all(d >= 1 and d <= 6 for d in active_days):
+            invalid = True
+            
+            
+        if invalid:
+            raise DisplayToUserException('Invalid day range')
+        
+
+        table = TimeTable.objects.filter(pk=helpers.to_int(bag.get('table_id')), college=college).first()
+        if table is None:
+            raise DisplayToUserException('An error occured (Table not found)')
+
+        section = college.sections.filter(active=1, pk=helpers.to_int(bag.get('section_id'))).first()
+        if section is None:
+            raise DisplayToUserException('An error occured (Section not found)')
+
+
+        lecture_index = helpers.to_int(bag.get('lecture_index', None))
+        if lecture_index < 0:
+            raise DisplayToUserException('Invalid payload')
+
+        # TODO: check for duplicate faculty in same lecture
+        
+        cellmanager.update_active_cell(table, lecture_index, section, fragments_data)
+        messages.success(req, 'Cell Updated')
+
+        return helpers.redirect_back(req)
+
+
+def make_table_data(table, college):
+    table_sections = []
+
+    table_cells = list(table.cells.filter(active=1).prefetch_related('fragments'))
+
+    for section in college.sections.filter(active=1):
+
+        section_cells = []
+        for cell in table_cells:
+            if cell.section_id == section.pk:
+
+                cell_fragments = []
+                for frag in cell.fragments.all():
+                    cell_fragments.append({
+                        'facultyId': frag.staff_id,
+                        'subjectId': frag.subject_id,
+                        'ranges': parse_policy_str(frag.rep_policy)
+                    })
+
+                section_cells.append({
+                    'lectureIndex': cell.lecture_index,
+                    'fragments': cell_fragments
+                })
+
+        table_sections.append({
+            'id': section.pk,
+            'name': section.name,
+            'cells': section_cells
+        })
+
+    return table_sections
 
 
 class TimeTableMainView(View):
     def get(self, req, college_id):
+
         # college: College = get_object_or_404(College, pk=college_id)
-        college : College = College.objects.filter(pk=college_id).first()
-        
+        college: College = College.objects.filter(pk=college_id).first()
+
         if college is None:
             raise Http404
-        
+
         validate_college(college)
-        
-        today_weekday_num = helpers.to_int(datetime.date.today().strftime("%w"), None)
-        
-        active_sections = list(college.sections.filter(active=1))
-        
-        table_info_list = internals.tableview.make_table_info_list(college, active_sections)
-        for info in table_info_list:
-            info.is_current = (info.weekday_num == today_weekday_num)
-            
 
-        return render(req, "sl/pages/timetable/table-main.html", {
-            'college': college,
-            'active_sections': active_sections,
-            'weekday_num': today_weekday_num,
-            
-            'LectureType': LectureType,
+        server_data = {
+            # 'token': get_token(req),
+            'staffs': [],
+            'subjects': [],
+            'urls': {
+                'update_cell': reverse("sl_u:update-cell")
+            }
+        }
 
-            'table_info_list': table_info_list
+        all_subjects = Subject.objects.all()
+
+        for subject in all_subjects:
+            server_data['subjects'].append({
+                'id': subject.pk,
+                'name': subject.name
+            })
+
+        server_data['college'] = {
+            'id': college.pk,
+            'name': college.name,
+        }
+
+        table: TimeTable = tablectrl.active_table(college)
+
+        server_data['table_id'] = table.pk
+
+        # table_lectures = list(table.lectures.order_by('lecture_index'))
+        table_lectures = list(table.lectures.all())
+        table_lectures.sort(key=lambda l: l.lecture_index)
+
+        data_lectures = []
+        data_lecture_times = []
+
+        time_formatter = datetimeformat.formatter(datetimeformat.TIME_UI)
+
+        for l in table_lectures:
+            data_lectures.append(l.lecture_type)
+            data_lecture_times.append(time_formatter(l.time_start) + ' - ' + time_formatter(l.time_end))
+
+        table_data = {
+
+            'lectures': data_lectures,
+            'lectureTimes': [data_lecture_times],
+
+            'sections': make_table_data(table, college)
+        }
+
+        active_staffs = list(college.staffs.filter(status=StaffStatus.ACTIVE, has_faculty=1))
+
+        for staff in active_staffs:
+            server_data['staffs'].append({
+                'id': staff.pk,
+                'name': staff.name,
+                'allowedSubjects': list(map(lambda x: x.pk, all_subjects))
+            })
+
+        server_data['table_data'] = table_data
+
+        return render(req, "sl/pages/timetable/table-new.html", {
+            'server_data': server_data
         })
-        
-class TimeTableAddSectionView(View):
-    def get(self, req, table_id):
-        bag = helpers.get_bag(req)
-        section_id = helpers.to_int(bag.get('section_id'))
-        context = internals.tablesectionview.make_list(table_id, section_id)
-        return render(req, "sl/pages/timetable/table-section.html", context)
-
-
-class Action_CreateTimeTable(View):
-
-    def _clean_input(self, bag):
-        college: College = helpers.fetch_model_clean(College, bag.get('college_id'))
-        
-        if college is None:
-            raise Http404
-        
-        validate_college(college)
-        
-        week_day = helpers.to_int(bag.get('week_day'), None)
-        
-        if week_day == None:
-            raise DisplayToUserException('Invalid week day')
-
-        if not (week_day > 0 and week_day <= 6):
-            raise DisplayToUserException('Invalid week day')
-
-
-        try:
-            slots = json.loads(bag.get('slots_json', '[]'))
-            if not isinstance(slots, list):
-                raise Exception
-        except:
-            raise DisplayToUserException('Invalid slot payload')
-
-        if len(slots) == 0:
-            raise DisplayToUserException('Please provide atleast one slot')
-
-        lecture_slots = []
-
-        for index, slot_obj in enumerate(sorted(slots, key=lambda s: s['order'])):
-            l_slot = l_timetable.TableLectureSlot()
-            l_slot.lecture_type = slot_obj['l_type']
-            try:
-                l_slot.time_start = datetime_parser.parse(slot_obj['time_start']).time()
-            except:
-                # l_slot.time_start = datetime.time()
-                raise DisplayToUserException(f'Invalid start time for slot {index+1}')
-            try:
-                l_slot.time_end = datetime_parser.parse(slot_obj['time_end']).time()
-            except:
-                raise DisplayToUserException(f'Invalid end time for slot {index+1}')
-                # l_slot.time_end = datetime.time()
-
-
-            if l_slot.time_start > l_slot.time_end:
-                raise DisplayToUserException(f'Invalid time for slot {index+1}')
-
-
-            lecture_slots.append(l_slot)
-
-        return college, week_day, lecture_slots
-
-    def post(self, req):
-        bag = helpers.get_bag(req)
-        college, week_day, slots = self._clean_input(bag)
-
-        table = l_timetable.make_table(college, week_day, slots)
-        today = datetime.date.today()
-        l_lecture.set_date_table(college, table, today, False)
-        
-        messages.success(req, 'Time Table created successfully')
-        return helpers.redirect_back(req)
-
-
-class Action_DeleteTimeTable(View):
-    
-    def _clean_input(self, bag):
-        table: TimeTable = TimeTable.objects.filter(pk=bag.get('table_id', 0)).prefetch_related('college').first()
-        if table is None:
-            raise DisplayToUserException("Table not found")
-        
-        validate_college(table.college)
-        
-        return table
-    
-    def post(self, req):
-        bag = helpers.get_bag(req)
-        table = self._clean_input(bag)
-        
-        l_timetable.deactivate_table(table.college, table)
-        
-        messages.success(req, "Time Table deleted successfully")
-        return helpers.redirect_back(req)
-    
-
-class Action_AddTimeTableSection(View):
-    
-    def _clean_input(self, bag):
-        college : College = helpers.fetch_model_clean(College, helpers.to_int(bag.get('college_id')))
-        section = college.sections.filter(pk=helpers.to_int(bag.get('section_id')), active=1).first()
-        table: TimeTable = college.time_tables.filter(pk=helpers.to_int(bag.get('table_id')), active=1).first()
-        # TODO: validate
-        
-        validate_college(college)
-        
-        if table.cells.filter(section=section, active=1).exists():
-            raise DisplayToUserException('Table already exists')
-        
-        try:
-            lectures = json.loads(bag.get('lectures_json', '[]'))
-            if not isinstance(lectures, list):
-                raise Exception
-        except:
-            raise DisplayToUserException('Invalid lecture payload')
-        
-        
-        lecture_cells = []
-        for lecture_obj in lectures:
-           
-            lecture_id = lecture_obj['lecture_id']
-            subject_id = lecture_obj['subject_id'] or 1
-            fac_id = lecture_obj['faculty_param_id'] or 1
-            
-            # print(lecture_obj)
-            
-            info = l_timetable.CellInfo()
-           
-            faculty_param = RoleParam.objects.filter(pk=fac_id, role=roles.ROLE_FACULTY, active=1).prefetch_related('staff').first()
-            
-            if faculty_param is None or faculty_param.staff.status != StaffStatus.ACTIVE:
-                raise DisplayToUserException('Some of the staff not found')
-
-            subject = Subject.objects.filter(pk=subject_id).first()
-            if subject is None:
-                raise DisplayToUserException('Some of the subjects not found')
-            
-            
-            if not faculty_param.fac_subjects.filter(target_subject__pk=subject.pk).exists():
-                raise DisplayToUserException('Subject integrity is violated')
-
-            
-            info.subject = subject
-            info.faculty_param = faculty_param
-            info.table_lecture = table.lectures.get(pk=lecture_id)
-            
-            lecture_cells.append(info)
-            
-        
-        return college, table, section, lecture_cells
-
-
-    def post(self, req):
-        bag = helpers.get_bag(req)
-        college, table, section, cells_info = self._clean_input(bag)
-        
-        l_timetable.make_table_slots(table, section, cells_info)
-        
-        messages.success(req, "Section added successfully")
-        return redirect(reverse('sl_u:view-timetable', args=[college.pk]))
-    

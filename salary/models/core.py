@@ -39,10 +39,10 @@ class College(models.Model, RelatableModel):
     staffs: models.Manager
     time_tables: models.Manager
     role_params: models.Manager
-    lecture_records: models.Manager
+    # lecture_records: models.Manager
 
-    staffs_v2: models.Manager
-        
+    # staffs_v2: models.Manager
+    
     
     
 class Subject(models.Model, RelatableModel):

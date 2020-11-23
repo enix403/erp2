@@ -7,198 +7,49 @@ import './index.css';
 import CellDialoge from './celldialogue';
 import TimeTable from './table';
 
+window.facultyData = window.SERVER_DATA.staffs;
+window.subjectsData = window.SERVER_DATA.subjects;
+window.tableData = window.SERVER_DATA.table_data;
 
-// const __data = {
 
-//     subjects: [
+// window.tableData = {
+//     lectures: [0, 0, 0, 0, 0, 0, 0],
+//     lectureTimes: [
+        // [
+        //     '12:00 AM - 12:00 AM', 
+        //     '12:00 AM - 12:00 AM',
+        //     '12:43 AM - 12:00 AM',
+        //     '12:00 AM - 12:00 AM',
+        //     '12:00 AM - 12:00 AM',
+        //     '12:00 AM - 12:00 AM',
+        //     '12:00 AM - 12:00 AM',
+        // ]
+//     ],
+//     sections: [
 //         {
 //             id: 1,
-//             name: 'Maths'
-//         }
-//     ],
-
-//     faculty: [
-//         {
-//             id: 1,
-//             name: 'ABC'
-//         }
-//     ],
-
-
-//     timetable: {
-//         lectures: [0, 0, 0, 0, 1, 0, 0, 0],
-//         sections: [
-//             {
-//                 id: 1,
-//                 name: 'PMG2',
-//                 cells: [
-//                     {
-//                         lecture_index: 0,
-//                         fragments: [
-//                             {
-//                                 start_day: 1,
-//                                 end_day: 4,
-//                                 faculty: 1,
-//                                 subject: 1
-//                             }
-//                         ]
-//                     }
-//                 ]
-//             }
-//         ]
-//     }
-// }
-
-
-const tableData = {
-    lectures: [0, 0, 0, 0, 0, 0, 0],
-    lectureTimes: [
-        [
-            '12:00 AM - 12:00 AM', 
-            '12:00 AM - 12:00 AM',
-            '12:43 AM - 12:00 AM',
-            '12:00 AM - 12:00 AM',
-            '12:00 AM - 12:00 AM',
-            '12:00 AM - 12:00 AM',
-            '12:00 AM - 12:00 AM',
-        ]
-    ],
-    sections: [
-        {
-            id: 1,
-            name: "PMG45",
-            cells: [
-                {
-                    lectureIndex: 0,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 1,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 2,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 3,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 4,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 5,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
-                {
-                    lectureIndex: 6,
-                    fragments: [
-                        {
-                            start: "Monday",
-                            end: "Wednesday",
-                            faculty: "Mr ABC",
-                            subject: "English"
-                        },
-                        {
-                            start: "Thursday",
-                            end: "Saturday",
-                            faculty: "Mr XYZ",
-                            subject: "Maths"
-                        }
-
-                    ] 
-                },
+//             name: "PMG45",
+//             cells: [
+//                 {
+//                     lectureIndex: 0,
+//                     fragments: [
+//                         {
+//                             ranges: [[1, 3]],
+//                             facultyId: 3,
+//                             subjectId: 1
+//                         },
+//                         // {
+//                         //     ranges: [[4, 6]],
+//                         //     facultyId: 2,
+//                         //     subjectId: 3
+//                         // },
+//                     ]
+//                 },
                 
-            ]
-        }
-    ]
-};
+//             ]
+//         }
+//     ]
+// };
 
 
 
@@ -209,41 +60,36 @@ class MainTableView extends React.Component {
 
         this.state = {
             modelOpen: false,
-            fragmentsData: {
-                1: {}
-            },
-            nextIndex: []
+            activeCell: { sectionId: null, lectureIndex: null }
         };
+
+        this.daysLookup = {
+            0: "Sunday",
+            1: "Monday",
+            2: "Tuesday",
+            3: "Wednesday",
+            4: "Thursday",
+            5: "Friday",
+            6: "Saturday",
+        }
     }
 
     handleClose = () => { 
-        this.setState({ modelOpen: false, initialSelectedFragments: [] })
+        this.setState({ modelOpen: false, activeCell: {sectionId: null, lectureIndex: null}});
     };
 
-    handleSave = (_payload) => {
-        this.handleClose();
-    };
-
-    handleInput = (fragmentIndex, fieldName, value) => {
-        // const index = this.state.nextIndex;
-
-        console.log(`New Value for ${fieldName} is ${value}`);
-
-        this.setState({
-            fragmentsData: {
-                ...this.state.fragmentsData,
-                [fragmentIndex]: {
-                    ...this.state.fragmentsData[fragmentIndex],
-                    [fieldName]: value
-                }
-            },
-            // nextIndex: index + 1
-        });
-    };
+    // handleSave = (_payload) => {
+    //     this.handleClose();
+    // };
 
     handleCellClick = (_lectureIndex, _sectionId) => {
-        // TODO: fill initialSelectedFragments with values
-        this.setState({ modelOpen: true });
+        this.setState({
+            modelOpen: true,
+            activeCell: {
+                sectionId: _sectionId,
+                lectureIndex: _lectureIndex
+            }
+        });
     };
 
     render() {
@@ -253,13 +99,16 @@ class MainTableView extends React.Component {
                 <CellDialoge
                     open={this.state.modelOpen}
                     onClose={this.handleClose}
-                    onSave={this.handleSave}
-                    initialFragments={[]}
-                    onInput={this.handleInput}
+                    // onSave={this.handleSave}
+                    // onInput={this.handleInput}
+                    activeCell={this.state.activeCell}
+
+                    daysLookup={this.daysLookup}
+
                 />
                 <TimeTable 
                     onCellClick={this.handleCellClick}
-                    tableData={tableData}
+                    daysLookup={this.daysLookup}
                 />
             </React.Fragment>
         );

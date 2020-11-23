@@ -1,5 +1,4 @@
 from __future__ import annotations
-import datetime
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -8,21 +7,12 @@ if TYPE_CHECKING:
         Staff,
     )
 
-from django.shortcuts import render, reverse
+from django.shortcuts import render
 from django.views import View
-from django.http import Http404, HttpResponse
 
 
-from base import datetimeformat, helpers
-
-from ..logic.reports import atndsheet as l_atndsheet
-from ..logic.reports import lecturesheet as l_lecturesheet
 from ..logic.constants import StaffStatus
 
-from ..logic import roles
-from ..controllers.execptions import DisplayToUserException
-from ..auth.manager import AuthManager
-from ..auth.validation import validate_college
 from ..models import (
     College,
 )
@@ -35,10 +25,10 @@ class MainTransfersView(View):
         college_list = []
         for c in College.objects.all():
             staff = []
-            for f in c.staffs.select_related('person').filter(status=StaffStatus.ACTIVE): # type: Staff
+            for f in c.staffs.filter(status=StaffStatus.ACTIVE): # type: Staff
                 staff.append({
                     'id': f.pk,
-                    'name': f.person.name,
+                    'name': f.name,
                 })
 
             college_list.append({

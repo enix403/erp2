@@ -17,6 +17,7 @@
 
     <title>ERP</title>
 
+    <link href="{% static "css/fonts.css" %}" rel="stylesheet" />
     <link href="{% static "lib/@fortawesome/fontawesome-free/css/all.min.css" %}" rel="stylesheet">
     <link href="{% static "lib/ionicons/css/ionicons.min.css" %}" rel="stylesheet">
 
@@ -27,6 +28,8 @@
     <link href="{% static "css/vendor/normalize.min.css" %}" rel="stylesheet" />
     <link href="{% static "lib/@blueprintjs/core/lib/css/blueprint.min.css" %}" rel="stylesheet" />
     <link href="{% static "lib/@blueprintjs/icons/lib/css/blueprint-icons.css" %}" rel="stylesheet" />
+
+
 
     <link href="{% static "css/sidebar.css" %}" rel="stylesheet">
     <link href="{% static "css/app.css" %}" rel="stylesheet">
@@ -77,13 +80,6 @@
                         Staff
                     </a>
                 </li>
-                {% comment %} <li class="nav-item">
-                    <a href="{% url 'sl_u:view-users' user_college_id %}"
-                        class="nav-link {% block sn-users %}{% endblock %}">
-                        <i data-feather="users"></i>
-                        User Accounts
-                    </a>
-                </li> {% endcomment %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-sections' user_college_id %}"
                         class="nav-link {% block sn-sections %}{% endblock %}">
@@ -112,13 +108,13 @@
                         Lecture Recording
                     </a>
                 </li>
-                <li class="nav-item">
+                {% comment %} <li class="nav-item">
                     <a href="{% url 'sl_u:view-holidays' user_college_id %}"
                         class="nav-link {% block sn-hldays %}{% endblock %}">
                         <i data-feather="package"></i>
                         Holidays
                     </a>
-                </li>
+                </li> {% endcomment %}
                 {% endif %}
 
             </ul>
@@ -128,36 +124,14 @@
             <ul class="nav nav-sidebar">
                 <li class="nav-label"><label class="content-label">Reporting</label></li>
 
-                <li class="nav-item">
+                {% comment %} <li class="nav-item">
                     <a href="{% url 'sl_u:view-reports-main' %}" class="nav-link {% block sn-reports %}{% endblock %}">
                         <i data-feather="bar-chart-2"></i>
                         Reports
                     </a>
-                </li>
-
-
-
-                {% comment %} <li class="nav-item">
-                    <a href="#" class="nav-link {% block sn-rp-lecsheet %}{% endblock %}">
-                        <i data-feather="bar-chart-2"></i>
-                        Lecture Sheet
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="#" class="nav-link {% block sn-rp-salsheet %}{% endblock %}">
-                        <i data-feather="bar-chart-2"></i>
-                        Salary Sheet
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:rview-rp-atnd' %}?college_id={{user_college_id}}"
-                        class="nav-link {% block sn-rp-atndsheet %}{% endblock %}">
-                        <i data-feather="bar-chart-2"></i>
-                        Attendance Sheet
-                    </a>
                 </li> {% endcomment %}
+
+
 
             </ul>
 

@@ -64,10 +64,30 @@ input.bp3-input.no-intent {
     vertical-align: middle;
 }
 
+.center-table-v th, .center-table-v td {
+    vertical-align: middle;
+}
+
+.center-table-h th, .center-table-h td {
+    text-align: center;
+}
+
 .ml-tag {
-   margin-left: 5px; 
+    margin-left: 5px;
 }
 
 .mr-tag {
-    margin-right: 5px; 
+    margin-right: 5px;
+}
+
+.tag-large {
+    font-size: 12px;
+}
+
+.nav-list-icon {
+    margin-right: 10px !important; 
+}
+
+.link-no-underline:hover {
+    text-decoration: none !important;
 }

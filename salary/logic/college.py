@@ -34,6 +34,7 @@ class Impl_College(object):
     
     #*************SECTIONS*************#
     
+    
     def _make_section(self, name, type, active=1):
         section = Section()
         section.name = name

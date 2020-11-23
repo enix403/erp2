@@ -4,6 +4,10 @@ from .core import RelatableModel
 
 from passlib.hash import pbkdf2_sha256
 
+
+
+# mysqladminpass
+
 class AppUser(models.Model, RelatableModel):
     relation_name = 'user_id'
     class Meta:

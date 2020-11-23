@@ -18,7 +18,8 @@ from ..controllers.execptions import DisplayToUserException
 from ..models import (
     # College,
     RoleParam,
-    AppUser
+    AppUser,
+    RoleParam
 )
 
 
@@ -58,27 +59,22 @@ class Action_Logout(View):
         
 
 def get_rp_and_college(rp_id):
-    role_param = RoleParam.objects.filter(pk=rp_id).select_related('college').first()
+    # role_param = RoleParam.objects.filter(pk=rp_id).select_related('college').first()
+    role_param = RoleParam.objects.filter(pk=rp_id).select_related('college', 'staff').first()
     if role_param is not None:
         college = role_param.college
     else:
         college = None
         
-    return role_param, college    
+    return role_param, college
         
 class UserAccountsView(View):
     def get(self, req, role_param_id):
 
-        # role_param = RoleParam.objects.filter(pk=role_param_id).select_related('college').first()
-        # if role_param is None:
-        #     raise Http404
-        # college = role_param.college
         
         role_param, college = get_rp_and_college(role_param_id)
         if role_param is None:
-            # raise DisplayToUserException("Staff not found")
             raise Http404
-        
         
         validate_college(college)
         
@@ -132,7 +128,7 @@ class Action_CreateUser(View):
             
         
         
-        users.make_user(college, role_param, m_type, users.UserInfo(role_param.name, username, password))
+        users.make_user(college, role_param, m_type, users.UserInfo(role_param.staff.name, username, password))
         
         messages.success(req, "User added successfully")
         return redirect(reverse('sl_u:view-staff', args=[college.pk]))

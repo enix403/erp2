@@ -17,7 +17,7 @@ from .execptions import DisplayToUserException
 
 
 def index(req):
-    return render(req, "sl/pages/managev2.html", {
+    return render(req, "sl/pages/manage.html", {
         "stations": Station.objects.all().prefetch_related('colleges'),
     })
 

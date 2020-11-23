@@ -1,4 +1,4 @@
-{% extends 'sl/app_base.html' %}
+{% extends 'sl/basev.html' %}
 {% block title %}Sections{% endblock %}
 
 {% block sn-manage %}active{% endblock %}
@@ -6,12 +6,14 @@
 
 
 {% block content %}
-<div class="component-section">
-    <h4 class="tx-semibold">Logical Sections</h4>
+<div>
+    <h3 class="bp3-heading heading-thin">Logical Sections</h3>
+
 
     <div class="row row-sm" style="margin-top: 10px">
         <div class="col-md-6">
-            <h6>Sections Added</h6>
+            <h6 class="bp3-heading">Sections Added</h6>
+
             <ul>
                 {% for section in regular_sections  %}
                 <li>{{ section.name }}</li>
@@ -20,28 +22,35 @@
 
         </div>
         <div class="col-md-6">
-            <h6>Add Logical Section</h6>
-            {% comment %} <form action="{{ route('add_log_section') }}" method="POST"> {% endcomment %}
-                <form action="{% url 'sl_u:add-regular-section' %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="__prev_url" value="{{ request.path }}">
-                    <input type="hidden" name="college_id" value="{{ college.id }}">
-                    <input type="text" class="form-control" placeholder="Section Name" name="name"
-                        style="margin-top: 10px">
-                    <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
-                </form>
+            <h6 class="bp3-heading mb-sm">Add Logical Section</h6>
+
+            <form action="{% url 'sl_u:add-regular-section' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="college_id" value="{{ college.id }}">
+
+                <div class="bp3-input-group mb-sm">
+                    <input type="text" class="bp3-input no-intent" name="name" placeholder="Enter section name" />
+                </div>
+
+                <button type="submit" class="bp3-button bp3-fill bp3-outlined bp3-intent-warning bp3-icon-add">
+                    Add
+                </button>
+            </form>
         </div>
     </div>
-
 </div>
 
+<hr>
+
 <div class="component-section">
-    <h4 class="tx-semibold">Combined Sections</h4>
+    <h3 class="bp3-heading heading-thin">Combined Sections</h3>
+
 
     <div class="row row-sm" style="margin-top: 10px">
 
         <div class="col-md-6">
-            <h6>Combined Sections Added</h6>
+            <h6 class="bp3-heading">Combined Sections Added</h6>
+
             <ul>
 
                 {% for section_name, children in merged_sections_formatted  %}
@@ -56,17 +65,28 @@
 
 
         <div class="col-md-6">
-            <h6>Combine New Sections</h6>
+            <h6 class="bp3-heading mb-sm">Combine New Sections</h6>
+
             <form action="{% url 'sl_u:add-merged-section' %}" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="college_id" value="{{ college.id }}" id="">
-                <input type="text" class="form-control" placeholder="Section Name" name="name" style="margin-top: 10px">
-                <select class="custom-select" autocomplete="off" multiple name="section_id" style="margin-top: 10px;">
-                    {% for section in regular_sections  %}
-                    <option value="{{ section.id }}">{{ section.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
+                <input type="hidden" name="college_id" value="{{ college.id }}">
+
+                <div class="bp3-input-group mb-sm">
+                    <input type="text" class="bp3-input no-intent" name="name" placeholder="Enter section name" />
+                </div>
+
+
+                <div class="bp3-fill">
+                    <select multiple autocomplete="off" name="section_id">
+                        {% for section in regular_sections  %}
+                        <option value="{{ section.id }}">{{ section.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="bp3-button bp3-fill bp3-outlined bp3-intent-warning bp3-icon-add">
+                    Add
+                </button>
             </form>
         </div>
     </div>

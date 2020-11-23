@@ -21,70 +21,21 @@ test tracking
 
 -------------------------------------------------
 
+filter out busy staff in fragment's faculty selection (in both frontend and backend)
+button to delete lecture
+    only do that if lecture's active cells are none
 
-logic/lecture.py 194
-contlr/lecturesview.py 102
-contlr/tableview.py
+add lecture:
+    if exists an inactive lecture of given index, activate it instead of create new one
+    else create new one and increment table.lectures_count
 
+display only active lectures in tableview
 
-Staff:
-    person
-    college
-    status
+-------------------------------------------------
+lecture sheet
 
-    transferred_from
-    transfer_date (date_start)
+loop over each day
 
-    main_role
-
-    
-
-RoleParam_v2:
-    staff
-
-    ....
-    ....
-    ....
-    ....
-
-    role
-    prev_role_param (null)
-
-
-    main
-    active
-    date_start
-    date_end
-
-
-
-
-
-time table:
-    college
-    date_start
-    date_end
-    main
-
-
-tbl cell:
-    time table
-
-    lecture index
-    section id
-
-    active
-    date_start
-    date_end
-
-tbl cell fragment:
-    cell
-
-    staff
-    subject
-
-    rep_policy
-
-
+finding lectures del at day + section:
     
 

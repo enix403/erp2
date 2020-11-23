@@ -1,4 +1,4 @@
-{% extends 'sl/app_base.html' %}
+{% extends 'sl/basev.html' %}
 {% block title %}Lecture Recording ({{college.name}}){% endblock %}
 
 {% block sn-manage %}active{% endblock %}
@@ -11,11 +11,11 @@
     {% for lecture in lectures  %}
 
     <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
-        {{ lecture.lecture_name }} ({{ lecture.time_start }} - {{lecture.time_end}}):
+        {{ lecture.lecture_name }} <small>({{ lecture.time_start }} - {{lecture.time_end}})</small>:
     </label>
 
     <div class="table-responsive" style="margin-top: 10px">
-        <table class="table table-sm table-hover table-bordered">
+        <table class="table table-sm center-table-v table-bordered">
             <thead>
                 <tr>
                     <th>Section</th>
@@ -38,59 +38,64 @@
                             {% csrf_token %}
                             <input type="hidden" name="college_id" value="{{ college.id }}">
                             <input type="hidden" name="cell_id" value="{{ row.cell_pk }}">
-                            <input type="submit" class="link-button" value="Mark as Completed">
+                            <button type="submit" class="bp3-button bp3-intent-success bp3-minimal">
+                                Mark as Completed
+                            </button>
                         </form>
 
 
 
                         {% elif row.completion.status == LectureRecordStatus.COMPLETED %}
-                        <span style="color:#28a745">
-                            Completed <i style="width:16px; height: 16px;" data-feather="check-circle"></i>
+
+                        <span class="bp3-tag bp3-intent-success tag-large bp3-minimal">
+                            <span class="bp3-text-overflow-ellipsis bp3-fill">Completed</span>
+                            <span class="bp3-icon bp3-icon-automatic-updates"></span>
                         </span>
 
 
                         {% elif row.completion.status == LectureRecordStatus.FIXED %}
-                        <span style="color:#B43E8F">
-                            Fixed <i style="width:16px; height: 16px;" data-feather="user-check"></i>
-                            ({{row.completion.info}})
+
+                        <span class="bp3-tag bp3-intent-primary tag-large bp3-minimal">
+                            <span class="bp3-text-overflow-ellipsis bp3-fill">Fixed by {{row.completion.info}}</span>
+                            <span class="bp3-icon bp3-icon-user"></span>
                         </span>
 
-                        {% elif row.completion.status == LectureRecordStatus.EMPTY %}
+                        {% comment %} <span style="color:#B43E8F"> {% endcomment %}
+                            {% comment %} Fixed <i style="width:16px; height: 16px;" data-feather="user-check"></i> {% endcomment %}
+                            {% comment %} ({{row.completion.info}}) {% endcomment %}
+                        {% comment %} </span> {% endcomment %}
+
+                        {% comment %} {% elif row.completion.status == LectureRecordStatus.EMPTY %}
                         <span style="color:#E3170A">
                             Empty
                             <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
                             <i style="width:16px; height: 16px;" data-feather="check-square"></i>
                         </span>
-                        
+
                         {% elif row.completion.status == LectureRecordStatus.CANCELLED %}
                         <span style="color:#E3170A">
                             Cancelled
                             <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
                             <i style="width:16px; height: 16px;" data-feather="check-square"></i>
-                        </span>
-
-
-                        {% comment %} {% elif row.completion.status == 6 %}
-                        <span style="color:#E3170A">
-                            Faculty not available
-                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
-                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
                         </span> {% endcomment %}
+
+
 
                         {% endif %}
                     </td>
 
                     <td>
                         {% if row.fixture_available %}
-                            <a href="{% url 'sl_u:view-apply-fix' college.id row.cell_pk %}">
-                                Apply Fixture
-                            </a>
+                        <a href="{% url 'sl_u:view-apply-fix' college.id row.cell_pk %}">
+                            Apply Fixture
+                        </a>
                         {% else %}
                         <span><i>Fixture not available</i></span>
                         {% endif %}
                     </td>
 
                 </tr>
+
                 {% endfor %}
             </tbody>
         </table>
