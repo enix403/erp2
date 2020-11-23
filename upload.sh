@@ -10,6 +10,7 @@ rsync \
     --exclude="/salary/frontend/dist" \
     --exclude="/env" \
     --exclude=".git" \
+	--exclude="**/.gitignore"
     --exclude="**/__pycache__" \
     --exclude="**/package-lock.json" \
     --exclude="**/*.js.map" \
