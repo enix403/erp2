@@ -12,6 +12,71 @@ from ..models import (
 from ..logic import leave_types
 
 
+class AttendancePayload:
+    time_in: datetime.time
+    time_out: datetime.time
+    leave_status: int
+
+
+class AtndUpdateResult:
+    SUCCESS = 0
+    ROW_LOCKED = 1
+    INVALID_TIME_IN = 2
+    INVALID_TIME_OUT = 3
+    INVALID_LEAVE_STATUS = 4
+
+
+
+def update_atnd(row: AttendanceRow, payload: AttendancePayload):
+    is_clean = (row.leave_status == leave_types.STATUS_UNSPEC)
+
+    if is_clean:
+        if payload.leave_status == leave_types.STATUS_UNSPEC:
+            return AtndUpdateResult.INVALID_LEAVE_STATUS
+
+        row.time_in = None
+        row.time_out = None
+        row.rec_time_in = None
+        row.rec_time_out = None
+
+        if payload.leave_status == leave_types.STATUS_PRESENT:
+            # person is present
+
+            # check time in
+            if payload.time_in == None:
+                return AtndUpdateResult.INVALID_TIME_IN
+
+            row.time_in = payload.time_in
+            row.rec_time_in = datetime.datetime.now().time()
+            row.leave_status = leave_types.STATUS_PRESENT
+        else:
+            # person is on leave
+            row.leave_status = payload.leave_status
+            row.rec_time_in = row.rec_time_in = datetime.datetime.now().time()
+
+    else:
+        if row.leave_status == leave_types.STATUS_PRESENT:
+
+            # check time out
+            if row.time_out == None:
+                if payload.time_out == None:
+                    return AtndUpdateResult.INVALID_TIME_OUT
+                row.time_out = payload.time_out
+                row.rec_time_out = datetime.datetime.now().time()
+            else:
+                # row locked
+                return AtndUpdateResult.ROW_LOCKED
+
+        else:
+            # row locked
+            return AtndUpdateResult.ROW_LOCKED
+
+    row.save()
+    return AtndUpdateResult.SUCCESS
+
+
+
+
 class StaffAvailabilityInfo:
     available: bool
     time_start: Optional[datetime.time]
