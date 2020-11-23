@@ -15,7 +15,7 @@ from ..models import (
 )
 from .table.parsing import CellLectureInfo, ParsedTimeTable
 
-from . import atnd_new as l_atnd
+from . import atnd as l_atnd
 from . import roles
 from .constants import StaffStatus, LectureType
 

@@ -19,7 +19,7 @@ from ..models import (
 )
 
 from ..logic import leave_types
-from ..logic import atnd_new as l_atnd
+from ..logic import atnd as l_atnd
 from ..logic import holidays as l_holidays
 
 from ..auth.validation import validate_college

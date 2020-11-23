@@ -25,7 +25,7 @@ from ..holidays import HolidayManager
 from .. import roles
 from .. import leave_types
 
-from ..atnd_new import AttendanceManager
+from ..atnd import AttendanceManager
 
 
 class AtndSheetStaffRow:
