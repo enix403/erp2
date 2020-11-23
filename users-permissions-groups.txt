@@ -1,2 +1,0 @@
-0 => admin only
-1 => all staff
