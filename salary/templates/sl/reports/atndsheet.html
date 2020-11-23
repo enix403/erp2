@@ -1,0 +1,54 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Attendance Sheet <small>({{college.name}})</small>{% endblock %}
+
+{% block sn-reports %}active{% endblock %}
+{% comment %} {% block sn-rp-atndsheet %}active{% endblock %} {% endcomment %}
+
+{% block css %}
+<style>
+.cell-nowrap {
+    white-space: nowrap !important;
+}
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="component-section" style="margin-bottom: 10px">
+    <div class="table-responsive" style="margin-top: 10px">
+        <table class="table table-sm table-hover table-bordered sheet">
+            <thead>
+                <tr>
+                    {% if sheet_type == AtndSheetType.FACULTY %}
+                    <th class="cell-nowrap">Faculty</th>
+                    <th class="cell-nowrap">Subject</th>
+                    {% else %}
+                    <th class="cell-nowrap">Administration</th>
+                    <th class="cell-nowrap">Designation</th>
+                    {% endif %}
+
+
+                    {% for h in day_headers %}
+                    <th>{{h}}</th>
+                    {% endfor %}
+
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for row in sheet_rows %}
+                <tr>
+                    <td class="cell-nowrap">{{ row.name }}</td>
+                    <td class="cell-nowrap">{{ row.info }}</td>
+
+                    {% for d in row.days %}
+                    <td>{{d}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,268 @@
+liquidjs
+nunjucks
+twing -- tick
+objection -- tick
+
+
+agreed = agreed at hiring
+given = available on a specific day from time table
+actual = actully taught
+
+get datetime = ( new \DateTime() )->format(<format>);
+
+mysql date = "Y-m-d"
+mysql time = "H:i:s"
+
+ui date = "d-M-Y"
+ui time = "h:i A"
+
+Y = 4 digit year
+m = month 1 - 12
+d = day 1 - 31
+
+M = month Jan - Dec
+h = 12-hours format hour (01 - 12)
+H = 24 hr format (01 - 24)
+i = minutes (01 - 60)
+s = seconds (01 - 60)
+
+A = AM / PM
+a = am / pm
+
+w = week day number(0 - 6)
+
+fac_id = id of role_param of a staff, not the id of the staff itself
+
+--------------STRUCTURE--------------
+
+person:
+    id name cnic bank_acc gender
+
+staff:
+    person_id
+    college_id
+
+role_params:
+    role
+
+    w_agreed (null)
+    x_rate (null)
+
+    category (m, m + e, m and e, v or null in case of admin)
+    salary (null)
+
+    active
+
+subjects:
+    id
+    name
+
+fac_subjects:
+    id
+    fac_id
+    subject
+    main (0, 1)
+
+
+time_table:
+    college_id
+    session
+    week_day
+
+    active
+    date in
+    date out
+
+
+time_table_cell:
+    table_id
+    section_id
+
+    lecture_number
+    fac_id
+    subject
+
+time_table_lecture:
+    table_id
+    lecture_number
+    time_start
+    time_end
+
+    lecture_type (normal, break or zero)
+
+
+fac_id = 4
+date = ..., day = monday (1)
+
+
+fetch tables where date_in and date_out contains the given date (it will return a list of tables)
+select the table from them with the given week_day
+
+loop on all the cells where fac_id = fac_id and increment the cell_counter
+w_given = cell_counter
+
+net_of_day = w_actual - min(w_given, w_agreed)
+
+if (deli >= given && deli <= agreed) {
+    output = 0
+    output = deli - deli
+    sub = deli
+}
+else if (deli <= given) {
+    output = deli - given
+    sub = given
+}
+else if (deli >= agreed) {
+    output = deli - agreed
+    sub = agreed
+}
+
+*******************
+
+if (given <= agreed) {
+    deli - clamp(deli, given, agreed)
+    deli - max(given, min(deli, agreed))
+}
+else {
+    deli - agreed
+}
+
+
+* deli - max(min(given, agreed), min(deli, agreed))
+
+def clamp(minimum, x, maximum):
+    return max(minimum, min(x, maximum))
+
+
+holidays:
+    id
+    date
+    college_id
+
+    lecture_table_id
+    allow_atnd
+
+    remarks
+
+attendance_rows:
+    date
+
+    college_id
+
+    staff_id
+    time in (null)
+    time out (null)
+    rec_time_in (null)
+    rec_time_out (null)
+    leave_status
+
+college:
+    id
+    name
+    station_id
+
+sections:
+    id
+    college_id
+    name
+    active
+    type (standalone, oper)
+
+oper_section_rows:
+    id
+    parent_section_id
+    target_section_id
+
+station:
+    id
+    name
+
+
+record_target_tables:
+    id
+    date
+    table_id
+
+
+lecture_records: --> lecture record is automatically create daily and then filled by user
+    target_record_id
+    cell_id
+    status (0 = completed, 1 = fixed, 2 = cancelled due to random event (dont give penalty), 3 = niether cuz no one was available)
+    give_penalty (0, 1)
+
+
+fixatures:
+    id
+    date
+    lecture_record_id
+    staff_id (could be a teacher or admin)
+    remarks
+
+-------------------------------------------------------------------------------
+
+
+-------------TECH NOTES ---------
+add "active" column to sections tables (__DONE__)
+
+create tables for recording creation and deletion dates of stuff
+    - time tables
+    - sections
+    - role params
+
+move give_penalty from fixture to lecture_record (IMPORTANT) (__DONE__)
+
+remove $session from throughout the codebase because it is no longer necessary
+
+-----------------------BUGS-------------------
+restrict duplicate fixture in same lecture slot (__DONE__)
+
+
+----------------NOTES--------------
+
+sections:
+    - divide sections into sessions
+    - sections of different sessions cannot be merged
+    - record date for when sections are merged 
+
+staff:
+    - class teacher
+    - father name
+    - create ui to allow additional subjects in time table 
+
+attendance:
+    - approved leaves
+
+lectures:
+    - record remarks and reason during applying fixtures
+    - LECTURE NOT CONDUCTED DUE TO EVENT
+
+system:
+    - add holidays
+
+
+----------------HISTORY--------------
+movement of staff
+time table
+section
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+

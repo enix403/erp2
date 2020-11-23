@@ -1,0 +1,10 @@
+# Route.get()
+# Route.post()
+
+# def gr_auth():
+#     pass
+# Route.group(gr_auth)
+
+# def gr_level_0():
+#     pass
+# Route.group

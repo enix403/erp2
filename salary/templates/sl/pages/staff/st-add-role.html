@@ -1,0 +1,83 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Add Role{% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-staff %}active{% endblock %}
+
+
+{% block content %}
+
+
+<div class="component-section">
+
+    <h5 class="tx-semibold">Add Role</h5>
+
+    <form autocomplete="off" action="{% url 'sl_u:add-staff-role' %}" method="POST">
+        {% csrf_token %}
+
+        <input type="hidden" name="college_id" value="{{ college.pk }}">
+        <input type="hidden" name="staff_id" value="{{ staff.pk }}">
+
+        <div class="row row-sm">
+            <div class="col-md-3">
+                <label class="m-label">Role</label>
+                <select class="custom-select" name="role">
+                    {% for role_info in all_roles %}
+                    <option value="{{ role_info.role }}">{{ role_info.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Subject</label>
+                <select class="custom-select" name="subject">
+                    {% for subject in subjects %}
+                    <option value="{{ subject.pk }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">Category</label>
+                <select class="custom-select" name="category">
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M }}">
+                        Morning
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M_AND_E }}">
+                        Morning &amp; Evening
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M_PLUS_E }}">
+                        Morning + Evening
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_V }}">
+                        Visiting
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Workload</label>
+                <input type="number" class="form-control" placeholder="..." name="w_agreed">
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Extra Lecture Rate</label>
+                <input type="number" class="form-control" placeholder="Enter rate" name="x_rate">
+            </div>
+        </div>
+
+        <div class="row row-sm">
+            <div class="col-md-3">
+                <label class="m-label">Salary</label>
+                <input type="number" class="form-control" placeholder="Enter salary" name="salary">
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">DOJ Campus</label>
+                <input type="date" value="{% now "Y-m-d" %}" class="form-control" name="j_date_campus">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 25px">Add</button>
+
+    </form>
+
+
+</div>
+
+{% endblock content %}

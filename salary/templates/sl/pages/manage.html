@@ -1,0 +1,138 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Manage{% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+
+
+{% comment %} {% block css %}
+<style>
+table tr {
+    display: inline-flex !important;
+    flex-direction: column !important;
+}
+
+table td {
+    padding: 5px !important;
+}
+</style>
+{% endblock css %} {% endcomment %}
+
+{% block content %}
+
+<div class="component-section">
+    <h4 class="tx-semibold">Stations</h4>
+
+    <div class="row row-sm" style="margin-top: 10px">
+        <div class="col-md-6">
+            <h6>Stations Added</h6>
+            <ul>
+                {% for station in stations %}
+                <li>{{ station.name }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+        <div class="col-md-6">
+            <h6>Add Station</h6>
+            <form action="{% url 'sl_u:add-station' %}" method="POST" autocomplete="off">
+                {% csrf_token %}
+
+                <input type="text" class="form-control" placeholder="Name" name="name" style="margin-top: 10px">
+                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<div class="component-section">
+    <h4 class="tx-semibold">Colleges</h4>
+
+    <div class="row row-sm" style="margin-top: 10px">
+        <div class="col-md-9">
+            <h6>Colleges Added</h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover tal table-striped table-bordered mg-b-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Station</th>
+                            <th colspan='6'>Links</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in stations %}
+                        {% for c in s.colleges.all  %}
+                        <tr>
+                            <td>{{ c.name }}</td>
+                            <td>{{ c.station.name }}</td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:view-sections' college_id=c.id %}">
+                                        Sections
+                                    </a>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:view-staff' college_id=c.id %}">
+                                        Staff
+                                    </a>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:today-atnd' college_id=c.id %}">
+                                        Attendance
+                                    </a>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:view-timetable' college_id=c.id %}">
+                                        Time Tables
+                                    </a>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:view-lecture-today' college_id=c.id %}">
+                                        Lecture Recording
+                                    </a>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <a href="{% url 'sl_u:view-holidays' college_id=c.id %}">
+                                        Holidays
+                                    </a>
+                                </strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div><!-- table-responsive -->
+
+            <div id="root"></div>
+
+        </div>
+        <div class="col-md-3">
+            <h6>Add College</h6>
+            <form action="{% url 'sl_u:add-college' %}" method="POST" autocomplete="off">
+                {% csrf_token %}
+                <input type="text" class="form-control" placeholder="College Name" name="name" style="margin-top: 10px">
+                <select class="custom-select" name="station_id" style="margin-top: 10px;">
+                    {% for station in stations %}
+                    <option value="{{station.id}}">{{station.name}}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+
+
+    <style>
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            color: rgba(0, 0, 0, 0.6);
+            font-family: "Roboto", sans-serif;
+            font-size: 14px;
+            line-height: 1.6em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .form-panel.one:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            width: 100%;
+            height: 100%;
+        }
+
+        .form {
+            z-index: 15;
+            position: relative;
+            background: #FFFFFF;
+            width: 450px;
+            margin: 100px auto 10px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .form {
+                width: 100vw;
+            }
+        }
+
+        .form-group {
+            display: -webkit-box;
+            display: flex;
+            flex-wrap: wrap;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            margin: 0 0 20px;
+        }
+
+        .form-group:last-child {
+            margin: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin: 0 0 10px;
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1;
+            text-transform: uppercase;
+            /* letter-spacing: .2em; */
+            letter-spacing: .07em;
+            cursor: initial;
+        }
+
+        .form-group input {
+            outline: none;
+            display: block;
+            background: rgba(0, 0, 0, 0.1);
+            width: 100%;
+            border: 1px solid #d9dfe7;
+            border-radius: 4px;
+            box-sizing: border-box;
+            /* padding: 12px 20px; */
+            padding: 4px 10px;
+            color: rgba(0, 0, 0, 0.6);
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 500;
+            line-height: inherit;
+            -webkit-transition: 0.3s ease;
+            transition: 0.3s ease;
+        }
+
+        .form-group input:focus {
+            color: rgba(0, 0, 0, 0.8);
+        }
+
+
+        .form-group button {
+            outline: none;
+            background: #4285F4;
+            width: 100%;
+            border: 0;
+            border-radius: 4px;
+            padding: 12px 20px;
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 500;
+            line-height: inherit;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+
+        .form-panel {
+            padding: 60px calc(5% + 60px) 60px 60px;
+            box-sizing: border-box;
+        }
+
+        .form-panel.one:before {
+            content: '';
+            logout_backend display: block;
+            opacity: 0;
+            visibility: hidden;
+            -webkit-transition: 0.3s ease;
+            transition: 0.3s ease;
+        }
+
+        .form-panel.one.hidden:before {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        .form-header {
+            margin: 0 0 25px;
+        }
+
+        .form-header h1 {
+            padding: 4px 0;
+            color: #4285F4;
+            font-size: 24px;
+            font-weight: 700;
+            /* text-transform: uppercase; */
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <!-- Form-->
+    <div class="form">
+        <div class="form-panel one">
+            <div class="form-header">
+                <h1>Login</h1>
+                {% comment %} @if (!empty(session()->get('alert')))
+                <p style="color: #f83c4f !important; font-weight: 500;font-size: 0.875rem;">
+                    {{ session()->get('alert')['msg'] }}
+                </p>
+                @endif {% endcomment %}
+
+                {% if messages %}
+                {% for message in messages %}
+                <p style="color: #f83c4f !important; font-weight: 500;font-size: 0.875rem;">
+                {{ message }}
+                </p>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="form-content">
+                <form action="{% url 'sl_u:login-backend' %}" method="POST" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required="required" />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required="required" />
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Log In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

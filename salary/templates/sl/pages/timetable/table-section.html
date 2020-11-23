@@ -1,0 +1,103 @@
+{% extends 'sl/app_base.html' %}
+{% load static %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-tables %}active{% endblock %}
+
+
+{% block title %}
+{{ section.name }} Time Table <small>({{ college.name }})</small>
+{% endblock title %}
+
+
+{% block css %}
+<style>
+    .center-table th,
+    .center-table td {
+        text-align: center;
+    }
+
+    .add-section-t {
+        position: absolute;
+        bottom: 2px;
+    }
+</style>
+{% endblock css %}
+
+{% block content %}
+
+<div class="component-section" style="margin-bottom: 10px" id="form_container">
+
+    <input type="hidden" name="_meta__college_id" value="{{college.pk}}">
+    <input type="hidden" name="_meta__section_id" value="{{section.pk}}">
+    <input type="hidden" name="_meta__table_id" value="{{table.pk}}">
+
+    <div>
+        <label class="d_name" style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);">
+            {{ day_name }}
+        </label>
+    </div>
+
+    <br>
+
+    {% for info in lecture_infos  %}
+
+    <div class="lecture_row" data-lecture-id="{{info.pk}}">
+        <div class="row row-sm" style="margin-bottom: 10px">
+            <div class="col-md-2">
+                <div class="t_lecture_num label-box label-box-bordered" style="width: 100%;">
+                    {{info.lecture_name}}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select autocomplete="off" class="custom-select fac_id">
+                    <option value="0">-- Select Teacher --</option>
+                    {% for fac in facs  %}
+                    <option value="{{ fac.pk }}">
+                        {{ fac.name }}
+                        ({{fac.subject_list}})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select autocomplete="off" class="custom-select subject_id">
+                    <option value="0">-- Select Subject --</option>
+                    {% for s in subjects  %}
+                    <option value="{{ s.id }}">{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="custom-control custom-checkbox" style="margin-top: 8px;">
+                    <label class="pure-material-checkbox">
+                        <input type="checkbox" class='lc_is_null' {{ info.default_null|yesno:'checked,' }}>
+                        <span>Null</span>
+                    </label>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+
+
+    <button type="button" onclick="send();" class="btn btn-primary" style="margin-top: 25px" data-type="submit">
+        Create
+    </button>
+</div>
+
+{% endblock content %}
+
+
+{% block js %}
+<script>
+    const TOKEN = "{{ csrf_token|escapejs }}";
+    const SEND_URL = "{% url 'sl_u:table-add-section' %}"
+</script>
+
+<script src="/static/js/redirect.js"></script>
+<script src="/static/js/table_section.js"></script>
+
+{% endblock js %}

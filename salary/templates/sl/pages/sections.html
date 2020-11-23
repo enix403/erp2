@@ -1,0 +1,76 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Sections{% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-sections %}active{% endblock %}
+
+
+{% block content %}
+<div class="component-section">
+    <h4 class="tx-semibold">Logical Sections</h4>
+
+    <div class="row row-sm" style="margin-top: 10px">
+        <div class="col-md-6">
+            <h6>Sections Added</h6>
+            <ul>
+                {% for section in regular_sections  %}
+                <li>{{ section.name }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+        <div class="col-md-6">
+            <h6>Add Logical Section</h6>
+            {% comment %} <form action="{{ route('add_log_section') }}" method="POST"> {% endcomment %}
+                <form action="{% url 'sl_u:add-regular-section' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="__prev_url" value="{{ request.path }}">
+                    <input type="hidden" name="college_id" value="{{ college.id }}">
+                    <input type="text" class="form-control" placeholder="Section Name" name="name"
+                        style="margin-top: 10px">
+                    <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
+                </form>
+        </div>
+    </div>
+
+</div>
+
+<div class="component-section">
+    <h4 class="tx-semibold">Combined Sections</h4>
+
+    <div class="row row-sm" style="margin-top: 10px">
+
+        <div class="col-md-6">
+            <h6>Combined Sections Added</h6>
+            <ul>
+
+                {% for section_name, children in merged_sections_formatted  %}
+                <li>
+                    {{section_name}} - ({{children}})
+                </li>
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+
+        <div class="col-md-6">
+            <h6>Combine New Sections</h6>
+            <form action="{% url 'sl_u:add-merged-section' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="college_id" value="{{ college.id }}" id="">
+                <input type="text" class="form-control" placeholder="Section Name" name="name" style="margin-top: 10px">
+                <select class="custom-select" autocomplete="off" multiple name="section_id" style="margin-top: 10px;">
+                    {% for section in regular_sections  %}
+                    <option value="{{ section.id }}">{{ section.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 10px">Add</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

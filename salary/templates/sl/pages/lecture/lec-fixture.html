@@ -1,0 +1,81 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Apply Fixture ({{college.name}}){% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-lecrd %}active{% endblock %}
+
+
+{% block content %}
+<div class="component-section" style="margin-bottom: 10px">
+
+
+    {% if not available_staff %}
+    <div class="alert alert-outline alert-warning" style="border-radius:5px;">
+        No staff if available for this lecture
+    </div>
+    {% endif %}
+
+    <div class="row row-sm">
+        <div class="col-md-3" style="margin-top: 5px">
+            <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
+                Most Suitable Staff
+            </label>
+
+            <div class="table-responsive" style="margin-top: 10px">
+                <table class="table table-sm table-hover table-bordsered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reason</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for staff in suggested_staff  %}
+                        <tr>
+                            <td>{{staff.name}}</td>
+                            <td>{{staff.suggest_reason}}</td>
+                            <td>
+                                <a href="#" class="select_staff" data-staff-id="{{ staff.id }}">Select</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="col-md-4" style="margin-top: 5px">
+            <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
+                All Available Staff
+            </label>
+            <form action="{% url 'sl_u:apply-fix' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="college_id" value="{{ college.id }}">
+                <input type="hidden" name="cell_id" value="{{ cell.id }}">
+
+                <select class="custom-select" name="staff_id" id="select_staff_id" style="margin-top: 10px">
+                    {% for staff in available_staff %}
+                    <option value="{{staff.id}}">{{staff.name}}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-danger btn-block" style="margin-top: 5px">Apply</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock content %}
+
+
+{% block js %}
+<script>
+    $(function () {
+        $(".select_staff").on("click", function () {
+            $("#select_staff_id").val(+$(this).data('staffId'));
+        });
+    });
+</script>
+{% endblock js %}

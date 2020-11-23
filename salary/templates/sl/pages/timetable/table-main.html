@@ -1,0 +1,60 @@
+{% extends 'sl/app_base.html' %}
+{% load static %}
+{% block title %}Time Tables{% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-tables %}active{% endblock %}
+
+
+{% block css %}
+<link href="{% static "css/timetable.css" %}" rel="stylesheet">
+{% endblock css %}
+
+{% block content %}
+
+<input type="hidden" class="meta-input" name="college_id" value="{{ college.id }}">
+<input type="hidden" class="meta-input" name="_token" value="{{ csrf_token }}">
+{% comment %} <input type="hidden" class="meta-input" name="create_table_link" value="{{ route('add_table') }}">
+{% endcomment %}
+<input type="hidden" class="meta-input" name="create_table_link" value="{% url 'sl_u:add-table' %}">
+
+<div class="component-section" style="margin-bottom: 10px">
+
+    <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
+        Active Time Tables
+    </label>
+    <div class="profile-body-header">
+        <div class="nav-wrapper">
+            <ul class="nav nav-line" id="profileTab" role="tablist">
+
+                {% for t in table_info_list %}
+                <li class="nav-item">
+                    <a class="nav-link table-day {% if t.is_current %}active{% endif %}" href="#tb-{{t.weekday_num}}">
+                        {{t.day_name}}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+    <div id="time_tables">
+        {% for table_info in table_info_list %}
+        <div class="time-table" {% if not table_info.is_current %}hide{% endif %} id="tb-{{table_info.weekday_num}}">
+            {% include "sl/pages/timetable/table-day-include.html" with info=table_info %}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+{% block js %}
+
+<script src="{% static "js/redirect.js" %}"></script>
+<script src="{% static "js/table_day.js" %}"></script>
+
+{% endblock js %}

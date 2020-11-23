@@ -1,0 +1,26 @@
+{% extends 'sl/basev.html' %}
+{% comment %} {% extends 'sl/app_base.html' %} {% endcomment %}
+{% load static %}
+{% block title %}Reports{% endblock %}
+{% block sn-reports %}active{% endblock %}
+
+{% comment %} * CSS * {% endcomment %}
+{% block css %}
+    <link href="{% static "bundles/css/vendors.css" %}?v=1" rel="stylesheet">
+    <link href="{% static "bundles/css/adminreports.css" %}?v=1" rel="stylesheet">
+{% endblock css %}
+
+{% comment %} * CONTENT * {% endcomment %}
+{% block content %}
+<div id="root"></div>
+{% endblock content %}
+
+{% comment %} * JS * {% endcomment %}
+{% block js %}
+{{ server_data|json_script:"__server_data" }}
+<script>
+window.SERVER_DATA = JSON.parse(document.getElementById('__server_data').textContent);
+</script>
+<script src="{% static "bundles/js/vendors.js" %}?v=1"></script>
+<script src="{% static "bundles/js/adminreports.js" %}?v=1"></script>
+{% endblock js %}

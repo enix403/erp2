@@ -1,0 +1,228 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}{{college.name}} Staff{% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-staff %}active{% endblock %}
+
+
+{% block css %}
+<style>
+    thead th {
+        font-weight: 900 !important;
+    }
+</style>
+{% endblock css %}
+
+
+
+{% block content %}
+
+<div class="component-section" style="margin-bottom: 10px">
+    <h5 class="tx-semibold">Active Staff</h5>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover table-bordered mg-b-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>CNIC</th>
+                    {% comment %} <th>Bank Acc</th> {% endcomment %}
+                    <th style="border-right-width: 3px">Gender</th>
+                    <th>Role</th>
+                    <th>Subject</th>
+                    <th>Category</th>
+                    <th>Workload</th>
+                    <th>Extra Lecture Rate</th>
+                    <th>Salary <small><strong>(PKR)</strong></small></th>
+
+                    <th>User Account</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+                {% if college_staffs.count == 0 %}
+                <tr>
+                    <td colspan="11" style="text-align: center;padding: 20px 0 !important;">
+                        <span style="font-size: 20px;font-weight: 500;">Empty</span>
+                    </td>
+                </tr>
+                {% endif %}
+
+
+                {% for staff in college_staffs  %}
+
+                {% with role_param_count=staff.role_params.count %}
+                <tr>
+                    <td style="vertical-align:middle;" rowspan="{{ role_param_count|add:2 }}">
+                        {{ staff.person.name }}
+                    </td>
+                    <td style="vertical-align:middle;" rowspan="{{ role_param_count|add:2 }}">
+                        {{ staff.person.cnic }}
+                    </td>
+                    {% comment %} <td style="vertical-align:middle;" rowspan="{{ role_param_count|add:2 }}">
+                        {{ staff.person.bank_acc }}
+                    </td> {% endcomment %}
+                    <td style="vertical-align:middle;border-right-width: 3px" rowspan="{{ role_param_count|add:2 }}">
+                        {{ staff.person.format_gender_name }}
+                    </td>
+                </tr>
+                {% endwith %}
+
+
+                {% for param in staff.role_params.all %}
+                <tr>
+                    <td>{{ param.format_role_name }}</td>
+
+                    {% comment %} null for admin {% endcomment %}
+                    <td>{{ param.format_subject_name }}</td>
+                    <td>{{ param.format_category_name }}</td>
+                    <td>{{ param.format_agreed_workload }}</td>
+                    <td>{{ param.format_x_rate }}</td>
+                    {% comment %} /null for admin {% endcomment %}
+
+                    <td>{{ param.format_salary }}</td>
+
+                    <td>
+                        {% if param.is_faculty %}
+                        -
+                        {% else %}
+                        {% if param.user_acc_exists %}
+                        Yes
+                        {% else %}
+                        No <a href="{% url 'sl_u:view-create-acc' param.pk %}">(Create)</a>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan='7' style="text-align: center">
+                        <strong>
+                            <a href="{% url 'sl_u:view-add-role' staff.pk %}">
+                                Add Role
+                            </a>
+                        </strong>
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div><!-- table-responsive -->
+</div>
+
+
+<div class="component-section">
+
+
+    <h5 class="tx-semibold">Add Staff</h5>
+
+    <form autocomplete="off" action="{% url 'sl_u:add-staff' %}" method="POST">
+        {% csrf_token %}
+
+        <input type="hidden" name="college_id" value="{{ college.id }}">
+
+        <div class="row row-sm" style="margin-top: 10px">
+            <div class="col-md-3">
+                <label class="m-label">Fullname</label>
+                <input type="text" class="form-control" placeholder="Enter name" name="name">
+            </div>
+
+            {% comment %} <div class="col-md-3">
+                <label class="bp3-label">
+                    Fullname
+                    <input type="text" class="bp3-input no-intent" name="name" placeholder="Enter name" />
+                </label>
+            </div> {% endcomment %}
+
+            <div class="col-md-3">
+                <label class="m-label">CNIC</label>
+                <input class="form-control" placeholder="Enter CNIC" name="cnic">
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">Gender</label>
+                <select class="custom-select" name="gender">
+                    <option value="{{ Gender.MALE }}">Male</option>
+                    <option value="{{ Gender.FEMALE }}">Female</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">Bank Account No.</label>
+                <input class="form-control" placeholder="Enter NO." name="bank_acc">
+            </div>
+        </div>
+
+        <div class="row row-sm">
+            <div class="col-md-3">
+                <label class="m-label">Role</label>
+                <select class="custom-select" name="role">
+                    {% for role_info in all_roles %}
+                    <option value="{{ role_info.role }}">{{ role_info.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Subject</label>
+                <select class="custom-select" name="subject">
+                    {% for subject in subjects %}
+                    <option value="{{ subject.pk }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">Category</label>
+                <select class="custom-select" name="category">
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M }}">
+                        Morning
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M_AND_E }}">
+                        Morning &amp; Evening
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_M_PLUS_E }}">
+                        Morning + Evening
+                    </option>
+                    <option value="{{ FacultyCategory.FAC_CATERGORY_V }}">
+                        Visiting
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Workload</label>
+                <input type="number" class="form-control" placeholder="..." name="w_agreed">
+            </div>
+            <div class="col-md-2">
+                <label class="m-label">Extra Lecture Rate</label>
+                <input type="number" class="form-control" placeholder="Enter rate" name="x_rate">
+            </div>
+        </div>
+
+        <div class="row row-sm">
+            <div class="col-md-3">
+                <label class="m-label">Salary</label>
+                <input type="number" class="form-control" placeholder="Enter salary" name="salary">
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">DOJ Kips</label>
+                <input type="date" value="{% now "Y-m-d" %}" class="form-control" name="j_date_kips">
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">DOJ Campus</label>
+                <input type="date" value="{% now "Y-m-d" %}" class="form-control" name="j_date_campus">
+            </div>
+            <div class="col-md-3">
+                <label class="m-label">ERP Number</label>
+                <input type="number" class="form-control" name="erp_number">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 25px">Create</button>
+
+    </form>
+
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,17 @@
+Principal
+Vice Principal
+Accountant
+Assistant Accountant
+Admin Manager
+Info Officer
+Student Counseller
+Librarian
+Security Gaurd
+Sweeper
+Office Boy
+Electrician
+Examination Controller
+Assistant Examination Controller
+Academic Coordinator
+Data Entry Operator
+Faculty

@@ -1,0 +1,218 @@
+{% load static %}
+{% load cs_auth_tags %}
+{% user_college_pk as user_college_id %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP</title>
+    
+    <!-- Required meta tags -->
+    {% comment %} <meta charset="utf-8"> {% endcomment %}
+    {% comment %} <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> {% endcomment %}
+
+
+
+    <link href="{% static "css/vendor/normalize.min.css" %}" rel="stylesheet" />
+    <link href="{% static "lib/@blueprintjs/core/lib/css/blueprint.min.css" %}" rel="stylesheet" />
+    <link href="{% static "lib/@blueprintjs/icons/lib/css/blueprint-icons.css" %}" rel="stylesheet" />
+
+
+    <link href="{% static "css/basev.min.css" %}" rel="stylesheet" />
+    <link href="{% static "css/grid.min.css" %}" rel="stylesheet" />
+    <link href="{% static "css/sidebar.css" %}" rel="stylesheet">
+    <link href="{% static "css/app2.css" %}" rel="stylesheet">
+
+    {% block css %}
+    {% endblock css %}
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="sidebar-home">
+            <a href="/">
+                {% comment %} <img style="width:100%;height: 100%" src="{% static 'img/logo.png' %}" alt=""> {% endcomment %}
+            </a>
+        </div>
+
+        <div class="sidebar-body">
+            <ul class="nav nav-sidebar">
+                <li class="nav-label">
+                    <label>Navigation</label>
+                </li>
+
+                {% check_type 0 as chres %}
+                {% if chres %}
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:manage' %}" class="nav-link {% block sn-manage %}{% endblock %}">
+                        <i data-feather="folder"></i>
+                        Manage
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-transfers' %}" class="nav-link {% block sn-transfers %}{% endblock %}">
+                        <i data-feather="layers"></i>
+                        Staff Transfers
+                    </a>
+                </li>
+                {% endif %}
+
+                {% check_type 1 as chres %}
+                {% if chres %}
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-staff' user_college_id %}"
+                        class="nav-link {% block sn-staff %}{% endblock %}">
+                        <i data-feather="users"></i>
+                        Staff
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-sections' user_college_id %}"
+                        class="nav-link {% block sn-sections %}{% endblock %}">
+                        <i data-feather="layers"></i>
+                        Sections
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-timetable' user_college_id %}"
+                        class="nav-link {% block sn-tables %}{% endblock %}">
+                        <i data-feather="grid"></i>
+                        Time Tables
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:today-atnd' user_college_id %}"
+                        class="nav-link {% block sn-atnd %}{% endblock %}">
+                        <i data-feather="user-check"></i>
+                        Attendance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-lecture-today' user_college_id %}"
+                        class="nav-link {% block sn-lecrd %}{% endblock %}">
+                        <i data-feather="clipboard"></i>
+                        Lecture Recording
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-holidays' user_college_id %}"
+                        class="nav-link {% block sn-hldays %}{% endblock %}">
+                        <i data-feather="package"></i>
+                        Holidays
+                    </a>
+                </li>
+                  {% comment %} <li class="nav-item">
+                      <a href="{% url 'sl_u:view-timetable2' user_college_id %}"
+                          class="nav-link {% block sn-tables2 %}{% endblock %}">
+                          <i data-feather="grid"></i>
+                          Time Tables  <span style="margin-left:5px" class="bp3-tag bp3-minimal bp3-intent-success">New</span>
+                      </a>
+                  </li> {% endcomment %}
+                {% endif %}
+
+            </ul>
+
+            <hr>
+
+            <ul class="nav nav-sidebar">
+                <li class="nav-label">
+                    <label>Reporting</label>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'sl_u:view-reports-main' %}" class="nav-link {% block sn-reports %}{% endblock %}">
+                        <i data-feather="bar-chart-2"></i>
+                        Reports
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <div class="header">
+            <div class="header-left">
+                <a href="" class="burger-menu"><i data-feather="menu"></i></a>
+            </div>
+
+            <div class="header-right">
+                <button class="bp3-button bp3-outlined bp3-intent-danger bp3-fill"
+                    onclick="location.href='{% url 'sl_u:logout' %}'">
+                    <span class="bp3-button-text">Logout</span>
+                    <span class="bp3-icon bp3-icon-log-out"></span>
+                </button>
+            </div>
+        </div>
+
+
+        <div class="content-title">
+            <span class="title-text">
+                {% block title %}{% endblock %}
+            </span>
+           
+
+            {% if messages %}
+            {% for message in messages %}
+
+            <div class="app-alert bp3-callout
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} bp3-icon-error bp3-intent-danger
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} bp3-icon-tick-circle bp3-intent-success
+                        {% endif %}
+						{% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %} bp3-icon-search-around bp3-intent-primary
+						{% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %} bp3-icon-warning-sign bp3-intent-warning
+                        {% endif %}
+                        " style="margin:10px 0;">
+
+                <h4 class="bp3-heading">
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} Error {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} Success {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %} Warning {% endif %}
+                	{% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %} Alert {% endif %}
+				</h4>
+                {{ message }}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+
+            {% comment %} <br> {% endcomment %}
+            {% comment %} <br> {% endcomment %}
+
+            {% comment %} <div class="hr"></div> {% endcomment %}
+
+            <hr>
+
+        </div>
+
+        <div class="content-body">
+        {% comment %} hello {% endcomment %}
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+    </div>
+
+
+
+    <script src="{% static "lib/feather-icons/feather.min.js" %}"></script>
+    <script src="{% static "lib/jquery/jquery.min.js" %}"></script>
+    <script src="{% static "js/cassie.js" %}"></script>
+
+    {% block js %}
+    {% endblock js %}
+
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+add users (high)
+allowances (high)
+
+record action initiater
+attendance sheet (mid)
+sections date start and date end (mid)
+new subjects for role params (mid)
+
+rearrange fixture suggestions order
+fixture reasons (low)
+ui to add leaves (low)
+
+deactivate sections (very low)
+lecture cancelled (very low)
+divide sections into sessions (very low)
+
+
+atnd authorization
+staff transfer
+test tracking
+
+-------------------------------------------------
+
+
+logic/lecture.py 194
+contlr/lecturesview.py 102
+contlr/tableview.py
+
+
+Staff:
+    person
+    college
+    status
+
+    transferred_from
+    transfer_date (date_start)
+
+    main_role
+
+    
+
+RoleParam_v2:
+    staff
+
+    ....
+    ....
+    ....
+    ....
+
+    role
+    prev_role_param (null)
+
+
+    main
+    active
+    date_start
+    date_end
+
+
+
+
+
+time table:
+    college
+    date_start
+    date_end
+    main
+
+
+tbl cell:
+    time table
+
+    lecture index
+    section id
+
+    active
+    date_start
+    date_end
+
+tbl cell fragment:
+    cell
+
+    staff
+    subject
+
+    rep_policy
+
+
+    
+

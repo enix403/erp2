@@ -1,0 +1,101 @@
+{% extends 'sl/app_base.html' %}
+{% block title %}Lecture Recording ({{college.name}}){% endblock %}
+
+{% block sn-manage %}active{% endblock %}
+{% block sn-lecrd %}active{% endblock %}
+
+
+{% block content %}
+<div class="component-section" style="margin-bottom: 10px">
+
+    {% for lecture in lectures  %}
+
+    <label style="margin-bottom: 2px; font-weight: 500;color:rgb(6, 7, 45);" class="tx-14 tx-color-01 mg-b-2">
+        {{ lecture.lecture_name }} ({{ lecture.time_start }} - {{lecture.time_end}}):
+    </label>
+
+    <div class="table-responsive" style="margin-top: 10px">
+        <table class="table table-sm table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Teacher</th>
+                    <th>Subject</th>
+                    <th colspan="2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for row in lecture.rows  %}
+                <tr>
+                    <th>{{row.section_name}}</th>
+                    <td>{{row.faculty_name}}</td>
+                    <td>{{row.subject_name}}</td>
+                    <td>
+
+                        {% if row.completion.status == LectureRecordStatus.UNSPEC %}
+                        <form action="{% url 'sl_u:mark-lec' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="college_id" value="{{ college.id }}">
+                            <input type="hidden" name="cell_id" value="{{ row.cell_pk }}">
+                            <input type="submit" class="link-button" value="Mark as Completed">
+                        </form>
+
+
+
+                        {% elif row.completion.status == LectureRecordStatus.COMPLETED %}
+                        <span style="color:#28a745">
+                            Completed <i style="width:16px; height: 16px;" data-feather="check-circle"></i>
+                        </span>
+
+
+                        {% elif row.completion.status == LectureRecordStatus.FIXED %}
+                        <span style="color:#B43E8F">
+                            Fixed <i style="width:16px; height: 16px;" data-feather="user-check"></i>
+                            ({{row.completion.info}})
+                        </span>
+
+                        {% elif row.completion.status == LectureRecordStatus.EMPTY %}
+                        <span style="color:#E3170A">
+                            Empty
+                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
+                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
+                        </span>
+                        
+                        {% elif row.completion.status == LectureRecordStatus.CANCELLED %}
+                        <span style="color:#E3170A">
+                            Cancelled
+                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
+                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
+                        </span>
+
+
+                        {% comment %} {% elif row.completion.status == 6 %}
+                        <span style="color:#E3170A">
+                            Faculty not available
+                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
+                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
+                        </span> {% endcomment %}
+
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if row.fixture_available %}
+                            <a href="{% url 'sl_u:view-apply-fix' college.id row.cell_pk %}">
+                                Apply Fixture
+                            </a>
+                        {% else %}
+                        <span><i>Fixture not available</i></span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <br>
+    {% endfor %}
+</div>
+{% endblock content %}

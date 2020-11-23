@@ -1,0 +1,2 @@
+class UnauthorizedCollegeAccess(Exception):
+    pass
