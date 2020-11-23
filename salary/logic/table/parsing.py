@@ -119,21 +119,7 @@ class TimeTableParser:
         
         self.date_start = date_start
         self.date_end = date_end
-        
-        # if date_end is None or date_start == date_end:
-        #     cl_queryset = table.cells.filter(
-        #         date_end__gte=date_start,
-        #         date_start__lte=date_start,
-        #     )
-        # else:
-        #     end_1 = Q(date_start__lte=self.date_start) & Q(date_end__gte=self.date_start)
-        #     end_2 = Q(date_start__lte=self.date_end) & Q(date_end__gte=self.date_end)
-        #     mid = Q(date_start__gte=self.date_start) & Q(date_end__lte=self.date_end)
-
-        #     cl_queryset = table.cells.filter(
-        #         end_1 | end_2 | mid,
-        #     )
-            
+       
         cl_queryset = utils.fetch_date_range(table.cells, date_start, date_end)
             
         self.cells = list(cl_queryset.prefetch_related('fragments', 'fragments__staff', 'fragments__subject'))
