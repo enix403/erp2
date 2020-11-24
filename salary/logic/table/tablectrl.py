@@ -8,12 +8,16 @@ import datetime
         # Subject
     # )
     
+from django.db.models import Q
 
 from ..constants import LectureType
+from ... import utils
 
 from ...models import (
     TimeTable,
-    TimeTableLecture
+    College,
+    TimeTableLecture,
+    TimeTableLectureSet
 )
 
 def _make_lec(index):
@@ -25,19 +29,12 @@ def _make_lec(index):
     
     return lec
 
-def active_table(college):
-
-    table = TimeTable.objects.filter(college=college, main=1).prefetch_related('lectures').first()
-
-    if table is not None:
-        return table
+def make_active_table(college):
 
     table = TimeTable()
     table.college = college
     table.main = 1
-    
-    table.save()
-    
+
     
     lectures = []
     lectures.extend([
@@ -58,15 +55,49 @@ def active_table(college):
     table.lecture_count = len(lectures)
     table.save()
     
+    lectureset = TimeTableLectureSet()
+    lectureset.date_start = datetime.date.today()
+    lectureset.active = 1
+    lectureset.table = table
+    lectureset.code = 'l001000l'
+    
+    lectureset.save()
+    
     for l in lectures:
         l.table = table
+        l.lectureset = lectureset
         
     TimeTableLecture.objects.bulk_create(lectures)
-        
 
     return table
 
 
-
-def find_current_table(college, date: datetime.date):
-    return active_table(college)
+class TableFinder:
+    
+    @classmethod
+    def find_date_direct(cls, college, date):
+        finder = cls(college, date)
+        return finder.find_date_table(date)
+    
+    def __init__(self, college: College, date_start, date_end = None):
+        date_query = utils.date_range_query(date_start, date_end)
+        
+        self.tables = list(college.time_tables.filter(Q(main=1) | date_query))
+        self.main_table = None
+        
+        for table in self.tables: # type: TimeTable
+            if table.main == 1:
+                self.main_table = table
+                break
+            
+        if self.main_table is None:
+            pass
+            # self.main_table = make_active_table(college)
+                
+        
+    def find_date_table(self, date):
+        for table in self.tables:
+            if table.main != 1 and date >= table.date_start and date <= table.date_end:
+                return table
+            
+        return self.main_table

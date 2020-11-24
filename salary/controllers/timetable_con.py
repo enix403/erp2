@@ -24,7 +24,7 @@ from ..models import (
 from ..logic.constants import StaffStatus
 # from ..logic import table as l_timetable
 
-from ..logic.table import cellmanager, tablectrl
+from ..logic.table import cellmanager
 from ..logic.table.utils import parse_policy_str
 
 
@@ -192,7 +192,7 @@ class TimeTableMainView(View):
             'name': college.name,
         }
 
-        table: TimeTable = tablectrl.active_table(college)
+        table = TimeTable.objects.filter(college=college, main=1).prefetch_related('lectures').first()
 
         server_data['table_id'] = table.pk
 

@@ -62,11 +62,15 @@ class ParsedTimeTable:
     parsed_cells: List[Dict[int, CellLectureInfo]]
     lectures: list
     
+    lecture_types: list
+    
     def __init__(self, date, lectures):
         self.date = date
+        
         self.lectures = lectures
         self.num_lectures = len(lectures)
         self.num_lectures_all = self.num_lectures
+        
         self.parsed_cells = []
         
         for _ in range(self.num_lectures):

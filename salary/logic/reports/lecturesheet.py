@@ -25,8 +25,9 @@ from ..constants import FacultyCategory, LectureRecordStatus
 from ..staff import StaffProcessor
 
 from ..table.parsing import TimeTableParser
-from ..table.tablectrl import active_table
+from ..table.tablectrl import TableFinder
 
+from ... import utils
 
 class LS_SectionRow:
     section_id: int
@@ -70,20 +71,20 @@ LS_ERR = 'E'
 # 5477485477
 
 
+# most disgusting thing
 def make_lecture_sheet(
     college: College,
     faculty: Staff,
     date_start: datetime.date,
     date_end: datetime.date,
-) -> Optional[LectureSheet]:
+) -> LectureSheet:
     
-    plus_one_day = datetime.timedelta(days=1)
 
     sections = list(college.sections.filter(active=1))
     lecture_records = list(college.lecture_records.filter(m_date__gte=date_start, m_date__lte=date_end))
     fixtures = list(Fixture.objects.filter(staff=faculty, m_date__gte=date_start, m_date__lte=date_end))
     
-
+    table_finder = TableFinder(date_start, date_end)
     hm = HolidayManager(college, date_start, date_end)
     
     data_lecture_rows = [None for _ in range(len(sections))]
@@ -97,26 +98,24 @@ def make_lecture_sheet(
         section_indices[s.pk] = i
 
 
-    table_parser = TimeTableParser(active_table(college), date_start, date_end) 
+    table_parsers = {}
     staff_proccessor = StaffProcessor(faculty, date_start, date_end)
-
     faculty_sections_pks = set()
 
-    current = date_start
-    while current <= date_end:
+    for current in utils.loop_dates(date_start, date_end):
         
-        # current = current + plus_one_day
+        table_db = table_finder.find_date_table(current)
+        if table_db is None:
+            continue
+        
+        parser = table_parsers.get(table_db.pk, None)
+        if parser is None:
+            parser = TimeTableParser(table_db, date_start, date_end)
+            table_parsers[table_db.pk] = parser
+            
         
         is_holiday = hm.is_holiday(current)
-        
-        # if not is_holiday:
-            # table = lm.find_date_table(current, False)
-            # is_error = table is None
-        # else:
-            # table = None
-            # is_error = True
-            
-        table = table_parser.parse_date(current)
+        table = parser.parse_date(current)
 
         cr_lec_records = [l for l in lecture_records if l.m_date == current]
         cr_fixtures = [f for f in fixtures if f.m_date == current]
@@ -133,14 +132,7 @@ def make_lecture_sheet(
                 lec_row.counts.append(LS_HOLIDAY)
                 fix_row.counts.append(LS_HOLIDAY)
                 continue
-                
-            # elif is_error:
-            #     lec_row.counts.append(LS_ERR)
-            #     fix_row.counts.append(LS_ERR)
-            #     continue
-            
-            
-
+    
             fs_cells_pk = [info.cell.pk for info in table.section_cells(section.pk) if info.faculty.pk == faculty.pk]
             if len(fs_cells_pk) > 0:
                 faculty_sections_pks.add(section.pk)
@@ -170,21 +162,15 @@ def make_lecture_sheet(
             meta.table_lectures.append(given_load)
             meta.extra.append(extra)
             meta.w_agreed.append(agreed)
+
         
         else:
             meta.total_delivered.append(LS_HOLIDAY)
             meta.table_lectures.append(LS_HOLIDAY)
             meta.extra.append(LS_HOLIDAY)
-            meta.w_agreed.append(agreed)
-            
-        # elif is_error:
-            # meta.total_delivered.append(LS_ERR)
-            # meta.table_lectures.append(LS_ERR)
-            # meta.extra.append(LS_ERR)
-        
-        current = current + plus_one_day
+            meta.w_agreed.append(LS_HOLIDAY)
+            # meta.w_agreed.append(agreed)
 
-        
         
 
     sheet = LectureSheet()

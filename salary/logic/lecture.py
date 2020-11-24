@@ -18,7 +18,7 @@ from .table.parsing import ParsedTimeTable
 
 def calculate_given_load(ptable: ParsedTimeTable, staff_id):
     load = 0
-    for lecture_index in range(ptable.num_lectures):  # type: TimeTableLecture
+    for lecture_index in range(ptable.num_lectures):
         lecture = ptable.lectures[lecture_index]
         if lecture.lecture_type != LectureType.NORMAL:
             continue

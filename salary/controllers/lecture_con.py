@@ -39,7 +39,7 @@ class LectureMainView(View):
         today = datetime.date.today()
         # table = TimeTable.objects.filter(college=college, main=1).first()
         
-        table = tablectrl.find_current_table(college, today)
+        table = tablectrl.TableFinder.find_date_direct(college, today)
         lectures = lecturesview.make_view(college, table, today)
 
         return render(req, 'sl/pages/lecture/lec-main.html', {
@@ -58,7 +58,7 @@ class Action_MarkComplete(View):
 
         validate_college(college)
         
-        table = tablectrl.find_current_table(college, datetime.date.today())
+        table = tablectrl.TableFinder.find_date_direct(college, datetime.date.today())
 
         cell: TimeTableCell = table.cells.filter(pk=helpers.to_int(bag.get('cell_id'))).first()
         if cell is None:
@@ -101,7 +101,7 @@ class ApplyFixtureView(View):
         today = datetime.date.today()
         # table = cell.time_table
         
-        table = tablectrl.find_current_table(college, today)
+        table = tablectrl.TableFinder.find_date_direct(college, today)
         ptable = TimeTableParser.parse_direct(table, today)
         
         cell_info = ptable[cell.lecture_index].get(cell.section_id)
@@ -148,7 +148,7 @@ class Action_ApplyFixture(View):
         if staff is None:
             raise DisplayToUserException("Staff not found")
 
-        table = tablectrl.find_current_table(college, datetime.date.today())
+        table = tablectrl.TableFinder.find_date_direct(college, datetime.date.today())
 
         cell: TimeTableCell = table.cells.filter(pk=helpers.to_int(bag.get('cell_id'))).first()
         if cell is None:

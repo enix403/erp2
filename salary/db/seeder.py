@@ -22,22 +22,20 @@ class Seeder:
     def run(self):
         self.add_subjects()
 
-        # s = admin.make_station("Lahore")
-        # cl = l_college.Impl_College.make_college("LBC1", s)
-        # cl_impl = l_college.Impl_College(cl)
-        # cl_impl.add_regular_section('PMG1')
-        # cl_impl.add_regular_section('PMG2')
-        # cl_impl.add_regular_section('PMG3')
-        # cl_impl.add_regular_section('PMG4')
-        # cl_impl.add_regular_section('PMG5')
-        # cl_impl.add_regular_section('PMG6')
+        s = admin.make_station("Lahore")
+        cl = l_college.Impl_College.make_college("LBC1", s)
+        cl_impl = l_college.Impl_College(cl)
+        cl_impl.add_regular_section('PMG1')
+        cl_impl.add_regular_section('PMG2')
+        cl_impl.add_regular_section('PMG3')
+        cl_impl.add_regular_section('PMG4')
+        cl_impl.add_regular_section('PMG5')
+        cl_impl.add_regular_section('PMG6')
 
-        # self.add_staff(cl_impl)
         self.add_user(None, 1)
 
 
     def add_user(self, c, r):
-
         users.make_user(None, None, 0, users.UserInfo("Admin", "admin", "pass"))
     
     def add_subjects(self):
