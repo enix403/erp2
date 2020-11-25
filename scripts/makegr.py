@@ -1,5 +1,5 @@
 import salary.auth.initialperms as manage_perms
-from salary.models import College
+# from salary.models import College
 
 def run():
     

@@ -1,14 +1,60 @@
-from ..models import AppUser
 from django.http import HttpRequest
 
-import base.helpers as helpers
-
 from passlib.hash import pbkdf2_sha256
+
+import base.helpers as helpers
+from ..models import AppUser
+from .constants import PermissionType
+
+
+class PermissionSet:
+    def __init__(self, user: AppUser):
+        
+        if user is not None:
+            groups = list(map(lambda ug: ug.group, user.acl_user_groups.prefetch_related('group__perms')))
+            perms = []
+            for g in groups:
+                perms.extend(g.perms.all())
+
+            self._perms = perms
+            
+        else:
+            self._perms = []
+
+    def check_perm(self, ptype, target):
+
+        if ptype == 'read':
+            ptype = PermissionType.PERM_READ
+        elif ptype == 'write':
+            ptype = PermissionType.PERM_WRITE
+        elif ptype == 'edit':
+            ptype = PermissionType.PERM_EDIT
+
+        for p in self._perms:
+            if p.perm_type == ptype and (p.perm == target or p.perm == '*'):
+                return True
+
+        return False
+
+    def check_read(self, target):
+        return self.check_perm(PermissionType.PERM_READ, target)
+
+    def check_write(self, target):
+        return self.check_perm(PermissionType.PERM_WRITE, target)
+
+    def check_edit(self, target):
+        return self.check_perm(PermissionType.PERM_EDIT, target)
 
 
 class AuthManager:
     _user: AppUser = None
     SESSION_USER_ID_KEY = 'sl_app_user_id'
+    
+    _perm_set: PermissionSet = PermissionSet(None)
+    
+    @classmethod
+    def permission_set(cls):
+        return cls._perm_set
     
     @classmethod
     def fill_from_session(cls, req: HttpRequest):
@@ -17,8 +63,10 @@ class AuthManager:
         if user_id != 0:
             user = AppUser.objects.filter(pk=user_id).first()
             cls._user = user
+            cls._perm_set = PermissionSet(user)
         else:
             cls._user = None
+            cls._perm_set = PermissionSet(None)
 
     @classmethod
     def get_logged_in_user(cls):
