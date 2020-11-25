@@ -19,7 +19,6 @@ from base import datetimeformat, helpers
 from ..logic.reports import atndsheet as l_atndsheet
 from ..logic.reports import lecturesheet as l_lecturesheet
 
-from ..logic import roles
 from ..controllers.execptions import DisplayToUserException
 from ..auth.manager import AuthManager
 from ..auth.validation import validate_college

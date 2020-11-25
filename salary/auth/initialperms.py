@@ -82,7 +82,8 @@ def run():
         add_perms(grp_principal, PermsInfo(
             ['*'],
             [
-                'sections',
+                '*',
+                '!sections',
             ],
             [],
         ))

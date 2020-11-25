@@ -78,8 +78,4 @@ class AclUserPermission(Permission):
         db_table = 'sl_acl_user_permissions'
         
     user = AppUser.get_key(r_name='acl_user_perms')
-    revoke = models.PositiveSmallIntegerField(db_column="revoke")
-    
-
-    
     

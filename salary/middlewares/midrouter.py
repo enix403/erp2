@@ -6,7 +6,7 @@ from .schema import route_schema
 import base.helpers as helpers
 
 from ..auth.manager import AuthManager
-from ..auth.execptions import UnauthorizedCollegeAccess
+from ..auth.execptions import HttpResponseErrorCode
 from ..controllers.execptions import DisplayToUserException
 
 noop = lambda *args, **kwargs: None
@@ -51,10 +51,10 @@ class RouterMiddleware:
         
     
     def process_exception(self, request : HttpRequest, exp: Exception):
-        if isinstance(exp, UnauthorizedCollegeAccess):
+        if isinstance(exp, HttpResponseErrorCode):
             return render(request, 'sl/errors/generic.html', {
-                "code": 401,
-                "msg": "Unauthorized"
+                "code": exp.code,
+                "msg": exp.msg
             })
         
         elif isinstance(exp, DisplayToUserException):

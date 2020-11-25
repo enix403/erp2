@@ -10,13 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP</title>
 
-    <!-- Required meta tags -->
-    {% comment %}
-    <meta charset="utf-8"> {% endcomment %}
-    {% comment %}
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> {% endcomment %}
-
-
     <link href="{% static "css/fonts.css" %}" rel="stylesheet" />
 
     <link href="{% static "css/vendor/normalize.min.css" %}" rel="stylesheet" />
@@ -51,11 +44,10 @@
                     <label>Navigation</label>
                 </li>
 
-                {% check_type 0 as chres %}
-                {% if chres %}
+                {% check_type 0 as flag %}
+                {% if flag %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:manage' %}" class="nav-link {% block sn-manage %}{% endblock %}">
-                        {% comment %} <i data-feather="folder"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-comparison nav-list-icon"></span>
                         Manage
                     </a>
@@ -63,71 +55,78 @@
 
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-transfers' %}" class="nav-link {% block sn-transfers %}{% endblock %}">
-                        {% comment %} <i data-feather="layers"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-exchange nav-list-icon"></span>
                         Staff Transfers
                     </a>
                 </li>
                 {% endif %}
 
-                {% check_type 1 as chres %}
-                {% if chres %}
+                {% check_type 1 as flag %}
+                {% if flag %}
+
+
+                {% auth_check 'staff' 'read' 'write' as flag_2 %}
+                {% if flag_2 %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-staff' user_college_id %}"
                         class="nav-link {% block sn-staff %}{% endblock %}">
-                        {% comment %} <i data-feather="users"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-people nav-list-icon"></span>
                         Staff
                     </a>
                 </li>
+                {% endif %}
+
+                {% auth_check 'sections' 'read' 'write' as flag_2 %}
+                {% if flag_2 %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-sections' user_college_id %}"
                         class="nav-link {% block sn-sections %}{% endblock %}">
-                        {% comment %} <i data-feather="layers"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-group-objects nav-list-icon"></span>
                         Sections
                     </a>
                 </li>
+                {% endif %}
+
+                {% auth_check 'timetable' 'read' 'write' as flag_2 %}
+                {% if flag_2 %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-timetable' user_college_id %}"
                         class="nav-link {% block sn-tables %}{% endblock %}">
-                        {% comment %} <i data-feather="grid"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-timeline-events nav-list-icon"></span>
                         Time Tables
                     </a>
                 </li>
+                {% endif %}
+
+                {% auth_check 'atnd_today' 'read' 'write' as flag_2 %}
+                {% if flag_2 %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:today-atnd' user_college_id %}"
                         class="nav-link {% block sn-atnd %}{% endblock %}">
-                        {% comment %} <i data-feather="user-check"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-highlight nav-list-icon"></span>
                         Attendance
                     </a>
                 </li>
+                {% endif %}
+
+                {% auth_check 'lec_record_today' 'read' 'write' as flag_2 %}
+                {% if flag_2 %}
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-lecture-today' user_college_id %}"
                         class="nav-link {% block sn-lecrd %}{% endblock %}">
-                        {% comment %} <i data-feather="clipboard"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-send-to-graph nav-list-icon"></span>
                         Lecture Recording
                     </a>
                 </li>
+                {% endif %}
+
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-atndauth' user_college_id %}"
                         class="nav-link {% block sn-atndauth %}{% endblock %}">
-                        {% comment %} <i data-feather="clipboard"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-automatic-updates nav-list-icon"></span>
                         AAuth
                     </a>
                 </li>
-                {% comment %} <li class="nav-item">
-                    <a href="{% url 'sl_u:view-holidays' user_college_id %}"
-                        class="nav-link {% block sn-hldays %}{% endblock %}">
-                        <i data-feather="package"></i>
-                        Holidays
-                    </a>
-                </li> {% endcomment %}
-      
                 {% endif %}
 
             </ul>
@@ -141,7 +140,6 @@
 
                 <li class="nav-item">
                     <a href="{% url 'sl_u:view-reports-main' %}" class="nav-link {% block sn-reports %}{% endblock %}">
-                        {% comment %} <i data-feather="bar-chart-2"></i> {% endcomment %}
                         <span class="bp3-icon-large bp3-icon-layout-hierarchy nav-list-icon"></span>
                         Reports
                     </a>
@@ -200,11 +198,6 @@
 
             {% endfor %}
             {% endif %}
-
-            {% comment %} <br> {% endcomment %}
-            {% comment %} <br> {% endcomment %}
-
-            {% comment %} <div class="hr"></div> {% endcomment %}
 
             <hr>
 

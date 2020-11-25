@@ -15,11 +15,15 @@ from ..auth.validation import validate_college
 from ..auth import users
 from ..controllers.execptions import DisplayToUserException
 
+from ..logic import roles
+
 from ..models import (
     # College,
     RoleParam,
     AppUser,
-    RoleParam
+    RoleParam,
+    AclGroup,
+    AclUserGroup
 )
 
 
@@ -59,7 +63,6 @@ class Action_Logout(View):
         
 
 def get_rp_and_college(rp_id):
-    # role_param = RoleParam.objects.filter(pk=rp_id).select_related('college').first()
     role_param = RoleParam.objects.filter(pk=rp_id).select_related('college', 'staff').first()
     if role_param is not None:
         college = role_param.college
@@ -70,8 +73,6 @@ def get_rp_and_college(rp_id):
         
 class UserAccountsView(View):
     def get(self, req, role_param_id):
-
-        
         role_param, college = get_rp_and_college(role_param_id)
         if role_param is None:
             raise Http404
@@ -84,26 +85,17 @@ class UserAccountsView(View):
         })
         
         
-        
-        
-        
 class Action_CreateUser(View):
     def post(self, req):
         bag = helpers.get_bag(req)
         
         role_param_id = helpers.to_int(bag.get("role_param_id"))
         
-        # role_param = RoleParam.objects.filter(pk=role_param_id).select_related('college').first()
-        # if role_param is None:
-        #     raise DisplayToUserException("Staff not found")
-        # college = role_param.college
-        
         role_param, college = get_rp_and_college(role_param_id)
         if role_param is None:
             raise DisplayToUserException("Staff not found")
         
         validate_college(college)
-        m_type = 1
             
         username = str(bag.get("username", '')).strip()
         password = str(bag.get("password", ''))
@@ -127,8 +119,21 @@ class Action_CreateUser(View):
             raise DisplayToUserException("Account for this role already exists")
             
         
+        user = users.make_user(college, role_param, 1, users.UserInfo(role_param.staff.name, username, password))
         
-        users.make_user(college, role_param, m_type, users.UserInfo(role_param.staff.name, username, password))
+        groups_ids = { gr.slug: gr.pk for gr in AclGroup.objects.all() }
+        user_groups = []
+        
+        for group_slug in roles.role_from_id(role_param.role).groups:
+            grp_id = groups_ids.get(group_slug)
+            if grp_id is not None:
+                user_group = AclUserGroup()
+                user_group.user = user
+                user_group.group_id = grp_id
+                
+                user_groups.append(user_group)
+                
+        AclUserGroup.objects.bulk_create(user_groups)
         
         messages.success(req, "User added successfully")
         return redirect(reverse('sl_u:view-staff', args=[college.pk]))

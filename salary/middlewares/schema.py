@@ -1,11 +1,11 @@
 from .internals import RouteGroup, ViewDef
 from .runner import MiddlewareContext
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 from django.shortcuts import redirect, reverse
 
 from ..models import AppUser
 from ..auth.manager import AuthManager
-from ..auth.execptions import UnauthorizedCollegeAccess
+from ..auth.execptions import HttpUnauthorized
 
 
 
@@ -16,8 +16,7 @@ def check_type_wrap(*types):
             if AuthManager.is_type(*types):
                 return get_next(ctx)
             
-            # return HttpResponse(status=401)
-            raise UnauthorizedCollegeAccess
+            raise HttpUnauthorized
 
         return _mid
     return check_type

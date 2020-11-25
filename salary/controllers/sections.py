@@ -16,11 +16,16 @@ from ..models import (
 from base import helpers
 from .execptions import DisplayToUserException
 
-from ..auth.validation import validate_college
-
+from ..auth.validation import (
+    validate_college,
+    validate_read,
+    validate_write
+)
 
 class SectionsView(View):
     def get(self, req, college_id):
+        validate_read('sections')
+        
         college: College = helpers.fetch_model_clean(College, college_id)
         if college == None:
             raise Http404
@@ -62,6 +67,9 @@ class SectionsView(View):
 
 class ValidateSectionCreationMixin(object):
     def _validate_section(self, bag):
+        
+        validate_write('sections')
+        
         name = bag.get('name')
         if not name:
             raise DisplayToUserException("Invalid name")
