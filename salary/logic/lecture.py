@@ -19,8 +19,8 @@ from .table.parsing import ParsedTimeTable
 def calculate_given_load(ptable: ParsedTimeTable, staff_id):
     load = 0
     for lecture_index in range(ptable.num_lectures):
-        lecture = ptable.lectures[lecture_index]
-        if lecture.lecture_type != LectureType.NORMAL:
+        lecture_type = ptable.lecture_types[lecture_index]
+        if lecture_type != LectureType.NORMAL:
             continue
 
         for cell_info in ptable[lecture_index].values():

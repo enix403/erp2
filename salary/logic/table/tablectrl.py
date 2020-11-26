@@ -26,6 +26,7 @@ def _make_lec(index):
     lec.time_start = datetime.time(9, 30)
     lec.time_end = datetime.time(10, 25)
     lec.lecture_type = LectureType.NORMAL
+    lec.active = 1
     
     return lec
 
@@ -52,7 +53,7 @@ def make_active_table(college):
         _make_lec(5),
     ])
     
-    table.lecture_count = len(lectures)
+    # table.lecture_count = len(lectures)
     table.save()
     
     lectureset = TimeTableLectureSet()
@@ -75,6 +76,15 @@ def make_active_table(college):
 class TableFinder:
     
     @classmethod
+    def get_main_table(cls, college):
+        table = TimeTable.objects.filter(college=college, main=1).first()
+        if table is None:
+            return make_active_table(college)
+        
+        return table
+    
+    
+    @classmethod
     def find_date_direct(cls, college, date):
         finder = cls(college, date)
         return finder.find_date_table(date)
@@ -91,8 +101,8 @@ class TableFinder:
                 break
             
         if self.main_table is None:
-            pass
-            # self.main_table = make_active_table(college)
+            # pass
+            self.main_table = make_active_table(college)
                 
         
     def find_date_table(self, date):

@@ -15,6 +15,9 @@ from ..logic import college as l_college
 from base import helpers
 from .execptions import DisplayToUserException
 
+from ..auth.validation import (
+    validate_write
+)
 
 def index(req):
     return render(req, "sl/pages/manage.html", {
@@ -22,15 +25,12 @@ def index(req):
     })
 
 
-# def index_2(req):
-#     return render(req, "sl/pages/manage.html", {
-#         "stations": Station.objects.all().prefetch_related('colleges'),
-#     })
-
-
 # ************************** NEW COLLEGE **************************
 class Action_CreateCollege(View):
     def _transform_input(self, bag):
+        
+        validate_write('colleges')
+        
         name = bag.get('name', None)
         if name == '':
             raise DisplayToUserException("Invalid name")
@@ -56,6 +56,8 @@ class Action_CreateCollege(View):
 # ************************** NEW STATION **************************
 class Action_CreateStation(View):
     def _transform_input(self, req, bag):
+        validate_write('stations')
+        
         name = bag.get('name', None)
         if not name:
             raise DisplayToUserException("Invalid name")

@@ -27,8 +27,8 @@ def str_to_perm_type(permstr):
         return PermissionType.PERM_READ
     if permstr == 'write':
         return PermissionType.PERM_WRITE
-    if permstr == 'edit':
-        return PermissionType.PERM_EDIT
+    if permstr == 'modify':
+        return PermissionType.PERM_MODIFY
 
     return -1
 

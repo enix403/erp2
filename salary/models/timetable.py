@@ -20,7 +20,7 @@ class TimeTable(models.Model, RelatableModel):
     date_end = models.DateField(null=True, blank=True)
 
     main = models.PositiveSmallIntegerField()
-    lecture_count = models.PositiveSmallIntegerField()
+    # lecture_count = models.PositiveSmallIntegerField()
 
     cells: models.Manager
     lectures: models.Manager
@@ -78,9 +78,11 @@ class TimeTableLectureSet(models.Model, RelatableModel):
     active = models.PositiveSmallIntegerField()
     
     lectures: models.Manager
+    
+    def parse_code(self):
+        return list(map(int, self.code[1:-1]))
 
 
-# TODO rename to TimeTableLecture
 class TimeTableLecture(models.Model, RelatableModel):
     relation_name = 'lec_id'
 
@@ -101,16 +103,3 @@ class TimeTableLecture(models.Model, RelatableModel):
 
 
 
-# class TimeTableLecture(models.Model, RelatableModel):
-#     relation_name = 'lec_id'
-
-#     class Meta:
-#         db_table = 'sl_tbl_lectures'
-
-#     table = TimeTable.get_key(r_name='lectures')
-#     lecture_index = models.IntegerField(db_column='lecture_index')
-
-#     time_start = models.TimeField(db_column='time_start')
-#     time_end = models.TimeField(db_column='time_end')
-
-#     lecture_type = models.IntegerField(db_column='lecture_type')

@@ -5,6 +5,7 @@ from django.shortcuts import redirect, reverse
 
 from ..models import AppUser
 from ..auth.manager import AuthManager
+from ..auth.constants import AuthUserType
 from ..auth.execptions import HttpUnauthorized
 
 
@@ -43,7 +44,7 @@ route_schema = RouteGroup(
         
         RouteGroup(
             middlewares=[
-                check_type_wrap(0)
+                check_type_wrap(AuthUserType.ROOT)
             ], 
             children=[
                 ViewDef('manage'),

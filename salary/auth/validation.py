@@ -1,5 +1,4 @@
 from .manager import AuthManager
-from .constants import PermissionType
 from .execptions import HttpUnauthorized
 from typing import Union
 from ..models import College
@@ -20,8 +19,9 @@ def validate_college(college: Union[College, int]):
     if not valid:
         raise HttpUnauthorized()
     
+
     
-def validate_read(target: str):
+def validate_read(target):
     if not AuthManager.permission_set().check_read(target):
         raise HttpUnauthorized
     
@@ -29,6 +29,6 @@ def validate_write(target: str):
     if not AuthManager.permission_set().check_write(target):
         raise HttpUnauthorized
 
-def validate_edit(target: str):
-    if not AuthManager.permission_set().check_edit(target):
+def validate_modify(target: str):
+    if not AuthManager.permission_set().check_modify(target):
         raise HttpUnauthorized

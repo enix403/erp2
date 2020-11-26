@@ -2,22 +2,7 @@ from collections import namedtuple
 
 ROLE_FACULTY = 1
 ROLE_PRINCIPLE = 2
-# ROLE_VICE_PRINCIPLE = 3
-# ROLE_INFO_OFFICER = 4
-# ROLE_ACCOUNTANT = 5
-# ROLE_AE_CONTROLLER = 6
 ROLE_CONSELLER = 7
-
-# ROLE_ADMIN_MANAGER = 8
-# ROLE_ASSISTANT_ACC = 9
-# ROLE_LIBRARIAN = 10
-# ROLE_SECURITY_GUARD = 11
-# ROLE_SWEEPER = 12
-# ROLE_OFFICE_BOY = 13
-# ROLE_ELECTRICIAN = 14
-# ROLE_EXAM_CTLR = 15
-# ROLE_ACADEMIC_COORD = 16
-# ROLE_DATA_OP = 17
 
 RoleInfo = namedtuple("RoleInfo", ['name', 'role', 'duplicate', 'groups'])
 
@@ -53,8 +38,8 @@ def all_roles():
     return __all_roles
 
 def role_from_id(role) -> RoleInfo:
-    role_info_list = list(filter(lambda role_info: role_info.role == role, __all_roles))
-    if len(role_info_list) > 0:
-        return role_info_list[0]
+    for role_info in __all_roles:
+        if role_info.role == role:
+            return role_info
     
     return None

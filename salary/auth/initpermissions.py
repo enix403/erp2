@@ -22,7 +22,7 @@ def groups_factory(slug, pk):
     return gr
 
 
-PermsInfo = namedtuple("PermsInfo", ('read', 'write', 'edit'), defaults=([], [], []))
+PermsInfo = namedtuple("PermsInfo", ('read', 'write', 'modify'), defaults=([], [], []))
     
 def add_perms(grp, perms: PermsInfo):
     
@@ -45,10 +45,10 @@ def add_perms(grp, perms: PermsInfo):
         all_perms.append(gr_perm)
 
 
-    for perm in perms.edit:
+    for perm in perms.modify:
         gr_perm = AclGroupPermission()
         gr_perm.group = grp
-        gr_perm.perm_type = PermissionType.PERM_EDIT
+        gr_perm.perm_type = PermissionType.PERM_MODIFY
         gr_perm.perm = perm
         
         all_perms.append(gr_perm)
@@ -73,7 +73,7 @@ def run():
     group_perms.extend(
         add_perms(grp_root, PermsInfo(
             ['*'],
-            ['*'], 
+            ['*'],
             ['*'],
         ))
     )
@@ -83,7 +83,9 @@ def run():
             ['*'],
             [
                 '*',
-                '!sections',
+                '!colleges',
+                '!stations',
+                '!staff_transfers',
             ],
             [],
         ))

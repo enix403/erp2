@@ -39,30 +39,6 @@ class Fixture(models.Model, RelatableModel):
     
     remarks = models.CharField(db_column='remarks', max_length=200, null=True, blank=True)
         
-        
-# class TableActivationHistory(models.Model, RelatableModel):
-#     relation_name = "table_history_id"
-#     class Meta:
-#         db_table = "sl_table_history"
-        
-#     college = College.get_key()
-#     date_start = models.DateField(db_column='date_start')
-#     date_end = models.DateField(db_column='date_end', null=True, blank=True)
-#     table = TimeTable.get_key()
-#     table_weekday = models.SmallIntegerField(db_column='table_weekday')
-#     current = models.SmallIntegerField(db_column='current')
-    
-    
-# class TargetTableRecord(models.Model, RelatableModel):
-#     relation_name = 'target_record_id'
-#     class Meta:
-#         db_table = "sl_target_records"
-        
-#     m_date = models.DateField()
-#     college = College.get_key()
-#     table = TimeTable.get_key()
-#     invalid = models.SmallIntegerField(db_column='invalid', default=0)
-    
 
 class Holiday(models.Model, RelatableModel):
     relation_name = 'holiday_id'

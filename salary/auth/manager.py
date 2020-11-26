@@ -10,16 +10,12 @@ from .constants import PermissionType
 class PermissionSet:
     def __init__(self, user: AppUser):
 
+        self._perms = set()
+
         if user is not None:
             groups = list(map(lambda ug: ug.group, user.acl_user_groups.prefetch_related('group__perms')))
-            perms = set()
             for g in groups:
-                perms.update(g.perms.values_list('perm_type', 'perm'))
-
-            self._perms = perms
-
-        else:
-            self._perms = set()
+                self._perms.update((p.perm_type, p.perm) for p in g.perms.all())
 
     def check_perm(self, ptype: int, target: str):
         return ((ptype, '*') in self._perms or (ptype, target) in self._perms) and (ptype, f'!{target}') not in self._perms
@@ -30,8 +26,8 @@ class PermissionSet:
     def check_write(self, target):
         return self.check_perm(PermissionType.PERM_WRITE, target)
 
-    def check_edit(self, target):
-        return self.check_perm(PermissionType.PERM_EDIT, target)
+    def check_modify(self, target):
+        return self.check_perm(PermissionType.PERM_MODIFY, target)
 
 
 class AuthManager:
