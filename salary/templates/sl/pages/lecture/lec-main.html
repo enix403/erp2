@@ -38,7 +38,10 @@
                             {% csrf_token %}
                             <input type="hidden" name="college_id" value="{{ college.id }}">
                             <input type="hidden" name="cell_id" value="{{ row.cell_pk }}">
-                            <button type="submit" class="bp3-button bp3-intent-success bp3-minimal">
+                            <button 
+                                type="submit" 
+                                class="bp3-button bp3-fill bp3-small bp3-intent-success bp3-minimal bp3-icon-draw"
+                            >
                                 Mark as Completed
                             </button>
                         </form>
@@ -60,33 +63,17 @@
                             <span class="bp3-icon bp3-icon-user"></span>
                         </span>
 
-                        {% comment %} <span style="color:#B43E8F"> {% endcomment %}
-                            {% comment %} Fixed <i style="width:16px; height: 16px;" data-feather="user-check"></i> {% endcomment %}
-                            {% comment %} ({{row.completion.info}}) {% endcomment %}
-                        {% comment %} </span> {% endcomment %}
-
-                        {% comment %} {% elif row.completion.status == LectureRecordStatus.EMPTY %}
-                        <span style="color:#E3170A">
-                            Empty
-                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
-                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
-                        </span>
-
-                        {% elif row.completion.status == LectureRecordStatus.CANCELLED %}
-                        <span style="color:#E3170A">
-                            Cancelled
-                            <i style="width:16px; height: 16px;" data-feather="alert-circle"></i>
-                            <i style="width:16px; height: 16px;" data-feather="check-square"></i>
-                        </span> {% endcomment %}
-
-
 
                         {% endif %}
                     </td>
 
                     <td>
                         {% if row.fixture_available %}
-                        <a href="{% url 'sl_u:view-apply-fix' college.id row.cell_pk %}">
+                        <a 
+                            role="button" 
+                            class="bp3-button bp3-fill bp3-small bp3-icon-user bp3-intent-warning bp3-minimal"
+                            href="{% url 'sl_u:view-apply-fix' college.id row.cell_pk %}"
+                        >
                             Apply Fixture
                         </a>
                         {% else %}

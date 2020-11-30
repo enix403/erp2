@@ -6,6 +6,7 @@ import React from 'react';
 import './index.css';
 import CellDialoge from './celldialogue';
 import TimeTable from './table';
+import LectureDialog from './lecturedialog';
 
 window.facultyData = window.SERVER_DATA.staffs;
 window.subjectsData = window.SERVER_DATA.subjects;
@@ -15,15 +16,15 @@ window.tableData = window.SERVER_DATA.table_data;
 // window.tableData = {
 //     lectures: [0, 0, 0, 0, 0, 0, 0],
 //     lectureTimes: [
-        // [
-        //     '12:00 AM - 12:00 AM', 
-        //     '12:00 AM - 12:00 AM',
-        //     '12:43 AM - 12:00 AM',
-        //     '12:00 AM - 12:00 AM',
-        //     '12:00 AM - 12:00 AM',
-        //     '12:00 AM - 12:00 AM',
-        //     '12:00 AM - 12:00 AM',
-        // ]
+//         [
+//             '12:00 AM - 12:00 AM', 
+//             '12:00 AM - 12:00 AM',
+//             '12:43 AM - 12:00 AM',
+//             '12:00 AM - 12:00 AM',
+//             '12:00 AM - 12:00 AM',
+//             '12:00 AM - 12:00 AM',
+//             '12:00 AM - 12:00 AM',
+//         ]
 //     ],
 //     sections: [
 //         {
@@ -38,14 +39,13 @@ window.tableData = window.SERVER_DATA.table_data;
 //                             facultyId: 3,
 //                             subjectId: 1
 //                         },
-//                         // {
-//                         //     ranges: [[4, 6]],
-//                         //     facultyId: 2,
-//                         //     subjectId: 3
-//                         // },
+//                         {
+//                             ranges: [[4, 6]],
+//                             facultyId: 2,
+//                             subjectId: 3
+//                         },
 //                     ]
 //                 },
-                
 //             ]
 //         }
 //     ]
@@ -59,7 +59,8 @@ class MainTableView extends React.Component {
         super(props);
 
         this.state = {
-            modelOpen: false,
+            cellModelOpen: false,
+            lectureModelOpen: false,
             activeCell: { sectionId: null, lectureIndex: null }
         };
 
@@ -75,16 +76,12 @@ class MainTableView extends React.Component {
     }
 
     handleClose = () => { 
-        this.setState({ modelOpen: false, activeCell: {sectionId: null, lectureIndex: null}});
+        this.setState({ cellModelOpen: false, activeCell: {sectionId: null, lectureIndex: null}});
     };
-
-    // handleSave = (_payload) => {
-    //     this.handleClose();
-    // };
 
     handleCellClick = (_lectureIndex, _sectionId) => {
         this.setState({
-            modelOpen: true,
+            cellModelOpen: true,
             activeCell: {
                 sectionId: _sectionId,
                 lectureIndex: _lectureIndex
@@ -96,16 +93,21 @@ class MainTableView extends React.Component {
 
         return (
             <React.Fragment>
+                <button 
+                    class="bp3-button bp3-small bp3-outlined bp3-intent-primary bp3-icon-add mb-md"
+                    onClick={() => this.setState({lectureModelOpen: true})}
+                >
+                    Edit Lectures
+                </button>
                 <CellDialoge
-                    open={this.state.modelOpen}
+                    open={this.state.cellModelOpen}
                     onClose={this.handleClose}
-                    // onSave={this.handleSave}
-                    // onInput={this.handleInput}
                     activeCell={this.state.activeCell}
 
                     daysLookup={this.daysLookup}
 
                 />
+                <LectureDialog open={this.state.lectureModelOpen} onClose={() => this.setState({lectureModelOpen: false})} />
                 <TimeTable 
                     onCellClick={this.handleCellClick}
                     daysLookup={this.daysLookup}
@@ -120,7 +122,7 @@ function App() {
 
     return (
         <React.Fragment>
-            <h6 className="bp3-heading">Fresh TimeTables</h6>
+            {/* <h6 className="bp3-heading">{window.SERVER_DATA.college.name} TimeTable</h6> */}
             <div className="table-responsive mt-md">
                 <MainTableView />
             </div>

@@ -11,6 +11,7 @@ from .execptions import DisplayToUserException
 import base.helpers as helpers
 
 from ..auth.manager import AuthManager
+from ..auth.constants import AuthUserType
 from ..auth.validation import validate_college
 from ..auth import users
 from ..controllers.execptions import DisplayToUserException
@@ -116,7 +117,10 @@ class Action_CreateUser(View):
         if role_param.user_acc_exists():
             raise DisplayToUserException("Account for this role already exists")
 
-        user = users.make_user(college, role_param, 1, users.UserInfo(role_param.staff.name, username, password))
+        user = users.make_user(
+            college, role_param, AuthUserType.CLG_STAFF, 
+            users.UserInfo(role_param.staff.name, username, password)
+        )
 
         user_groups = []
 

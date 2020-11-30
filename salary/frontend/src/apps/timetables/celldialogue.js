@@ -1,6 +1,16 @@
 import React from 'react';
-import { Dialog } from "@blueprintjs/core";
 
+import { Dialog } from '@blueprintjs/core/lib/esm/components/dialog/dialog';
+import { Toaster } from '@blueprintjs/core/lib/esm/components/toast/toaster';
+import { Position } from '@blueprintjs/core/lib/esm/common/position';
+
+import { getLectureName } from './lectureUtils';
+
+// copied from stackoverflow, too lazy to remove the comment below
+/** Singleton toaster instance. Create separate instances for different options. */
+const AppToaster = Toaster.create({
+    position: Position.TOP,
+});
 
 function WeekdayInput({ onChange, value }) {
     return (
@@ -187,34 +197,6 @@ function getEmptyFragment() {
     };
 }
 
-function getLectureName(type, index) {
-
-    const lectures = window.tableData.lectures;
-
-    for (let i = 0, w = 1; i < lectures.length; i++) {
-        const lec = lectures[i];
-
-        if (index == i) {
-            if (lec == 1) {
-                return "Break";
-            }
-            else {
-                return `Lecture ${w}`;
-            }
-        }
-
-        if (lec != 1) {
-            w++;
-        }
-    }
-
-    // if (type == 1) {
-    // return "Break";
-    // }
-    // return `Lecture ${index + 1}`;
-}
-
-window.getLectureName = getLectureName;
 
 class CellDialoge extends React.Component {
 
@@ -241,7 +223,7 @@ class CellDialoge extends React.Component {
         const result = {
             fragments: [],
             sectionName: '',
-            lectureName: getLectureName(window.tableData.lectures[lectureIndex], lectureIndex)
+            lectureName: getLectureName(lectureIndex)
         }
 
 
@@ -253,11 +235,6 @@ class CellDialoge extends React.Component {
                 for (let j = 0; j < section.cells.length; j++) {
                     const cell = section.cells[j];
                     if (cell.lectureIndex == lectureIndex) {
-                        // return {
-                        //     fragments: JSON.parse(JSON.stringify(cell.fragments)),
-                        //     sectionName: section.name
-                        // };
-
                         // deep copy
                         result.fragments = JSON.parse(JSON.stringify(cell.fragments));
                         return result;
@@ -304,6 +281,12 @@ class CellDialoge extends React.Component {
     }
 
     addFragment = () => {
+
+        if (window.facultyData.length == 0) {
+            AppToaster.show({ message: "No faculty found.", intent: "danger", icon: "error" });
+            return;
+        }
+
         this.setState({
             fragments: [...this.state.fragments, getEmptyFragment()],
             fragmentsActiveStatus: [...this.state.fragmentsActiveStatus, true],

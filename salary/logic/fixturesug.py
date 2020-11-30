@@ -1,10 +1,6 @@
 from __future__ import annotations
-from typing import List
-import datetime
-
 
 from base import helpers
-
 
 from ..models import (
     College,
@@ -17,7 +13,7 @@ from .table.parsing import CellLectureInfo, ParsedTimeTable
 
 from . import atnd as l_atnd
 from . import roles
-from .constants import StaffStatus, LectureType
+from .constants import StaffStatus
 
 from .lecture import calculate_given_load
 
@@ -171,9 +167,9 @@ class FixtureSuggestion:
         for i, (func, reason) in enumerate(sources):
             current = func(next_faculty_s)
             exists = len(current) == 1
-            if exists or i == last_index:
-                if exists:
-                    return current, reason
+            if exists:
+                return current, reason
+            if i == last_index:
                 return next_faculty_s, next_faculty_reason
             if len(current) != 0:
                 next_faculty_s = current

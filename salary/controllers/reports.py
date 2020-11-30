@@ -147,15 +147,7 @@ class LectureSheetView(View):
         if date_start is None or date_end is None or date_end < date_start:
             raise _gen_exp("Invalid date range")
 
-
-        # start = time.time()
         sheet = l_lecturesheet.make_lecture_sheet(college, faculty, date_start, date_end)
-        # print()
-        # print()
-        # print()
-        # print("Time Of Execution: ", time.time() - start)
-        # print()
-        # print()
         
         day_headers = []
 

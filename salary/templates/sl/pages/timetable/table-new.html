@@ -1,7 +1,7 @@
 {% extends 'sl/basev.html' %}
 {% comment %} {% extends 'sl/app_base.html' %} {% endcomment %}
 {% load static %}
-{% block title %}Time Tables <small>({{server_data.college.name}})</small>{% endblock %}
+{% block title %}Time Table <small>({{server_data.college.name}})</small>{% endblock %}
 {% block sn-manage %}active{% endblock %}
 {% block sn-tables %}active{% endblock %}
 
@@ -27,9 +27,6 @@
 
 {% comment %} <hr> {% endcomment %}
 
-<button class="bp3-button bp3-minimal bp3-intent-success bp3-icon-add mb-md">
-    Add Lecture
-</button>
 
 <div id="root"></div>
 {% endblock content %}

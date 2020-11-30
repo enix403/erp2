@@ -4,6 +4,8 @@ from ..logic import admin, college as l_college
 from ..logic.constants import Gender, FacultyCategory
 from ..logic import roles
 from ..auth import users
+from ..auth.constants import AuthUserType
+
 
 from ..models import (
     Subject,
@@ -36,7 +38,7 @@ class Seeder:
 
 
     def add_user(self, c, r):
-        users.make_user(None, None, 0, users.UserInfo("Admin", "admin", "pass"))
+        users.make_user(None, None, AuthUserType.ROOT, users.UserInfo("Admin", "admin", "pass"))
     
     def add_subjects(self):
         subjects = [
