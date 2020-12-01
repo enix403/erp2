@@ -20,8 +20,10 @@ __pycache__/
 /run/
 
 
-/storage/sessions/
 /salary/migrations/
+/base/settings/environs/
+
+/storage/sessions/
 /salary/frontend/dist/
 /act
 /t

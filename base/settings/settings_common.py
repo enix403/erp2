@@ -71,6 +71,7 @@ DATABASES = {
     }
 }
 
+MIGRATION_MODULES = {'salary': 'salary.migrations.master'}
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Karachi'

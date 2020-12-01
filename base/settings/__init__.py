@@ -4,7 +4,7 @@ import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-env_path = BASE_DIR / 'base' / '.env'
+env_path = BASE_DIR / 'base' / 'settings' / 'environs' / '.master.env'
 load_dotenv(dotenv_path=env_path)
 
 
