@@ -62,44 +62,33 @@ class TimeTableCellFragment(models.Model, RelatableModel):
     rep_policy = models.CharField(max_length=20)
 
 
-class TimeTableLectureSet(models.Model, RelatableModel):
-    relation_name = 'tbl_lecset_id'
-    
+
+class TimeTableLecture(models.Model, RelatableModel):
+    relation_name = 'tbl_lec_id'
+
     class Meta:
-        db_table = "sl_tbl_lecsets"
-        
-    table = TimeTable.get_key(r_name='lecture_sets')
-    
+        db_table = 'tbl_lecs'
+
+    lecture_index = models.PositiveSmallIntegerField()
+    table = TimeTable.get_key(r_name='cells')
+    active = models.PositiveSmallIntegerField()
+
+    # dates active between (both inclusive)
     date_start = models.DateField()
     date_end = models.DateField(default="9999-12-31")
     
-    code = models.CharField(max_length=20)
-    
-    active = models.PositiveSmallIntegerField()
-    
-    lectures: models.Manager
-    
-    def parse_code(self):
-        return list(map(int, self.code[1:-1]))
+    fragments: models.Manager
 
 
-class TimeTableLecture(models.Model, RelatableModel):
-    relation_name = 'lec_id'
+class TimeTableLectureFragment(models.Model, RelatableModel):
+    relation_name = 'tbl_lecfrag_id'
 
     class Meta:
-        db_table = 'sl_tbl_set_lectures'
+        db_table = 'tbl_lecfrags'
 
-    # shortcut for lectureset.table
-    table = TimeTable.get_key(r_name='lectures')
-    lectureset = TimeTableLectureSet.get_key(r_name='lectures')
-    lecture_index = models.IntegerField(db_column='lecture_index')
-
-    time_start = models.TimeField(db_column='time_start')
-    time_end = models.TimeField(db_column='time_end')
-    
-    active = models.PositiveSmallIntegerField()
-
-    lecture_type = models.PositiveSmallIntegerField(db_column='lecture_type')
+    lecture = TimeTableLecture.get_key(r_name='fragments')
+    rep_policy = models.CharField(max_length=20)
 
 
-
+    time_start = models.TimeField()
+    time_end = models.TimeField()
