@@ -7,12 +7,27 @@ from app.salary.core.exceptions import (
     UserLogicException
 )
 from app.base import utils
+from app.salary.core.auth.manager import AuthManager
+from app.salary.core.auth.policy import (
+    SimpleAuthPolicy,
+    AclAuthorizationPolicy
+)
 
 class ExceptionHandlerMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, req):
+        req.auth_manager = AuthManager(
+            req,
+            SimpleAuthPolicy(),
+            AclAuthorizationPolicy() 
+        )
+
+        # print()
+        # print(req.auth_manager.user_principals)
+        # print()
+
         return self.get_response(req)
 
     def process_exception(self, request : HttpRequest, exp: Exception):

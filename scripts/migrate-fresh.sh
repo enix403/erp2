@@ -5,10 +5,18 @@
 # makemigrations salary
 # migrate
 
-. act
-./t migrate salary zero
-rm -rf salary/migrations/*
-mkdir -p salary/migrations
-touch salary/migrations/__init__.py
-./t makemigrations salary
-./t migrate
+ROOT=$(readlink -f $(dirname "$0")/..)
+
+source $ROOT/config/environs/.hrcupdate.env
+source $ROOT/act
+
+echo "Flushing database..." 
+echo "yes" | $ROOT/manage.py reset_db > /dev/null
+echo "Flush complete"
+
+echo "Starting fresh database migration..."
+rm -rf $ROOT/migrations/$MIGRATIONS_SUBFOLDER/*
+mkdir -p $ROOT/migrations/$MIGRATIONS_SUBFOLDER
+touch $ROOT/migrations/$MIGRATIONS_SUBFOLDER/__init__.py
+$ROOT/manage.py makemigrations salary
+$ROOT/manage.py migrate

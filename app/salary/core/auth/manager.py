@@ -4,9 +4,7 @@ from .interfaces import (
     IAuthenticationPolicy,
     IAuthorizationPolicy
 )
-from .principals import ClgAccess
-
-from app.salary.models import AppUser
+# from app.salary.models import AppUser
 
 
 class AuthManager:
@@ -17,10 +15,29 @@ class AuthManager:
         authz_policy: IAuthorizationPolicy
     ):
 
-        userid = authn_policy.unauthenticated_userid(request)
-        self.user = authn_policy.authenticated_user(userid) # type: AppUser
+        self.user = authn_policy.authenticated_user(request) # type: AppUser
         self.user_principals = authn_policy.effective_principals(self.user) # type: list
 
+        self.authn_policy = authn_policy
+        self.authz_policy = authz_policy
 
-    # def permits(self, context, permission, target_clg_id=None):
-        # if target_clg_id != None and 
+
+    def permits(self, context, permission):
+        """Returns True if the permission is allowed in the given context, False otherwise"""
+        return self.authz_policy.permits(context, self.user_principals, permission)
+
+    def refresh_principals(self):
+        self.user_principals = self.authn_policy.effective_principals(self.user)
+
+    def require_one(self, principals):
+        """Returns True the user has any of the principals, False otherwise"""
+        return any(p in self.user_principals for p in principals)
+
+    def require_all(self, principals):
+        """Returns True the user has all of the principals, False otherwise"""
+        return all(p in self.user_principals for p in principals)
+
+    def require(self, principal):
+        """Checks wether tbe user has the principal"""
+        return principal in self.user_principals
+

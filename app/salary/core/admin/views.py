@@ -1,7 +1,7 @@
 from __future__ import annotations
 from django.views import View
 from django.shortcuts import render
-from django.http import HttpRequest
+from app.salary.typehints import HttpRequest
 from django.contrib import messages
 
 from app.base import utils
@@ -9,12 +9,25 @@ from app.salary.models import (
     Station,
     College
 )
+
+from app.salary.core.college import validate_simple
+
 from app.salary.core.exceptions import UserLogicException
+
+from app.salary.core.auth.authroles import AuthRole
+from app.salary.core.auth.actions import Allow
+from app.salary.core.auth.principals import PR_AuthRole
 
 from . import _actions
 
+class ManagePermissions:
+    __acl__ = (
+        (Allow, PR_AuthRole(AuthRole.SUPERUSER), ['station:create', 'station:update', 'station:delete']),
+        (Allow, PR_AuthRole(AuthRole.SUPERUSER), ['clg:create', 'clg:update', 'clg:delete']),
+    )
+
 class IndexManageView(View):
-    def get(self, req):
+    def get(self, req: HttpRequest):
         return render(req, 'sl/manage.html', {
             'stations': Station.objects.all().prefetch_related('colleges')
         })

@@ -42,3 +42,6 @@ def to_int(num, default = 0) -> int:
 def get_first(lst: list):
     if lst:
         return lst[0]
+
+def is_nonstr_iter(obj):
+    return hasattr(obj, '__iter__') and not isinstance(obj, str)

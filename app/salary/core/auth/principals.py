@@ -1,14 +1,14 @@
 Everyone = 'sys.Everyone'
 Authenticated = 'sys.Authenticated'
 
-def UserId(userid):
+def PR_UserId(userid):
     return f'UserId({userid})'
 
-def AuthRole(role):
+def PR_AuthRole(role):
     return f'AuthRole({role})'
 
-def StaffRole(role):
+def PR_StaffRole(role):
     return f'StaffRole({role})'
 
-def ClgAccess(college_id):
+def PR_ClgAccess(college_id):
     return f'ClgAccess({college_id})'
