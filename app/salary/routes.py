@@ -1,9 +1,10 @@
-from django.shortcuts import redirect
 from django.urls import path, include
+from app.salary.home import root
 
 app_name = "sl_u"
 urlpatterns = [
-    path('', lambda r: redirect('sl_u:Manage.Index')),
+    path('', root),
 
-    path('manage/', include('app.salary.core.admin.routes'))
+    path('manage/', include('app.salary.core.admin.routes')),
+    path('auth/', include('app.salary.core.auth.routes'))
 ]

@@ -11,6 +11,11 @@ class HttpResponseErrorCode(Exception):
         self.msg = msg
 
 class HttpUnauthorized(HttpResponseErrorCode):
-    def __init__(self):
-        super().__init__(401, 'Not Authorized')
+    def __init__(self, msg='Not Authorized'):
+        super().__init__(401, msg)
 
+
+class HttpRedirectException(Exception):
+    def __init__(self, url, permanent=False):
+        self.permanent = permanent
+        self.url = url

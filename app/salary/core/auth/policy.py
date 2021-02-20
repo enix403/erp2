@@ -2,34 +2,28 @@ from __future__ import annotations
 from django.http import HttpRequest
 
 from app.base.utils import to_int, is_nonstr_iter
-from app.salary.models import (
-    AppUser
-)
+from app.salary.models import AppUser
+from app.salary.core.exceptions import UserLogicException
 
 from .principals import (
     Everyone,
     Authenticated,
-
     # StaffRole,
     PR_UserId,
     PR_AuthRole,
-    PR_ClgAccess
+    PR_ClgAccess,
 )
 
-from .actions import (
-    Allow,
-    Deny
-)
+from .actions import Allow, Deny
 from .interfaces import IAuthenticationPolicy, IAuthorizationPolicy
-
 
 
 class SessionCookieAuthnPolicy(IAuthenticationPolicy):
 
-    SESSION_KEY = 'ss_tkt_userid'
+    SESSION_KEY = "ss_tkt_userid"
 
     def unauthenticated_userid(self, request: HttpRequest):
-        return 1
+        # return 1
         userid = request.session.get(self.SESSION_KEY)
         if not userid:
             return None
@@ -51,10 +45,9 @@ class SessionCookieAuthnPolicy(IAuthenticationPolicy):
 
         return user
 
-
     def forget(self, request: HttpRequest):
         request.session[self.SESSION_KEY] = 0
-    
+
     def remember(self, request: HttpRequest, userid):
         request.session[self.SESSION_KEY] = userid
 
@@ -69,7 +62,6 @@ class SimpleAuthPolicy(SessionCookieAuthnPolicy):
             # principals.append(PR_StaffRole(user.role_param_id...))
             if user.college_id != -1:
                 principals.append(PR_ClgAccess(user.college_id))
-
 
         return tuple(principals)
 
@@ -86,7 +78,7 @@ class AclAuthorizationPolicy(IAuthorizationPolicy):
             acl = acl()
 
         allowed = False
-        
+
         for ace in acl:
             perm_action, perm_pcpl, perm_name = ace
 
@@ -104,4 +96,3 @@ class AclAuthorizationPolicy(IAuthorizationPolicy):
                         pass
 
         return allowed
-        
