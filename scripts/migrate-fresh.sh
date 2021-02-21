@@ -20,3 +20,9 @@ mkdir -p $ROOT/migrations/$MIGRATIONS_SUBFOLDER
 touch $ROOT/migrations/$MIGRATIONS_SUBFOLDER/__init__.py
 $ROOT/manage.py makemigrations salary
 $ROOT/manage.py migrate
+
+if [ "$1" == "--seed" ]; then
+    echo "Seeding..."
+    $ROOT/manage.py runscript seed
+    echo "Seeding complete"
+fi

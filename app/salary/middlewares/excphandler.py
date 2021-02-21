@@ -13,6 +13,33 @@ from app.salary.core.auth.manager import AuthManager
 from app.salary.core.auth.policy import SimpleAuthPolicy, AclAuthorizationPolicy
 
 
+def handle_exception(request: HttpRequest, exp: Exception):
+    if isinstance(exp, HttpRedirectException):
+        return redirect(exp.url, permanent=exp.permanent)
+
+
+    if isinstance(exp, HttpResponseErrorCode):
+        return render(
+            request,
+            "bs/errors/generic.html",
+            {"code": exp.code, "msg": exp.msg},
+            status=exp.code,
+        )
+
+    elif isinstance(exp, UserLogicException):
+        if exp.route_name == None:
+            response = utils.redirect_back(request)
+        else:
+            response = redirect(
+                reverse(exp.route_name, args=exp.route_args) + exp.query_params
+            )
+
+        messages.error(request, exp.user_msg)
+        return response
+
+    return None
+
+
 class ExceptionHandlerMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -38,27 +65,4 @@ class ExceptionHandlerMiddleware:
         return self.get_response(request)
 
     def process_exception(self, request: HttpRequest, exp: Exception):
-
-        if isinstance(exp, HttpRedirectException):
-            return redirect(exp.url, permanent=exp.permanent)
-
-        if isinstance(exp, HttpResponseErrorCode):
-            return render(
-                request,
-                "bs/errors/generic.html",
-                {"code": exp.code, "msg": exp.msg},
-                status=exp.code,
-            )
-
-        elif isinstance(exp, UserLogicException):
-            if exp.route_name == None:
-                response = utils.redirect_back(request)
-            else:
-                response = redirect(
-                    reverse(exp.route_name, args=exp.route_args) + exp.query_params
-                )
-
-            messages.error(request, exp.user_msg)
-            return response
-
-        return None
+        handle_exception(request, exp)

@@ -55,8 +55,7 @@
                         <tr>
                             <th>Station</th>
                             <th>Name</th>
-                            {% comment %} <th colspan='6'>Links</th> {% endcomment %}
-                            <th>Links</th>
+                            <th colspan='2'>Links</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +70,7 @@
                             <td>{{ c.name }}</td>
                             <td>
                                 <strong>
-                                    <a href="#">
+                                    <a href="{% url 'sl_u:Section.Index' college_id=c.id %}">
                                         Sections
                                     </a>
                                 </strong>

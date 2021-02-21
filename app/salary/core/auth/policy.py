@@ -23,7 +23,6 @@ class SessionCookieAuthnPolicy(IAuthenticationPolicy):
     SESSION_KEY = "ss_tkt_userid"
 
     def unauthenticated_userid(self, request: HttpRequest):
-        # return 1
         userid = request.session.get(self.SESSION_KEY)
         if not userid:
             return None

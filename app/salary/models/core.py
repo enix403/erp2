@@ -35,7 +35,7 @@ class College(models.Model, RelatableModel):
     name = models.CharField(max_length=20, db_column="name")
     station = Station.get_key("station_id", 'colleges')
 
-    # sections: models.Manager
+    sections: models.Manager
     # staffs: models.Manager
     # time_tables: models.Manager
     # role_params: models.Manager

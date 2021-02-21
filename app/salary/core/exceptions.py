@@ -15,6 +15,11 @@ class HttpUnauthorized(HttpResponseErrorCode):
         super().__init__(401, msg)
 
 
+class HttpNotFound(HttpResponseErrorCode):
+    def  __init__(self, msg='Not Found'):
+        super().__init__(404, msg)
+
+
 class HttpRedirectException(Exception):
     def __init__(self, url, permanent=False):
         self.permanent = permanent
