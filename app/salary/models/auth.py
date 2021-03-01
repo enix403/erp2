@@ -5,6 +5,7 @@ from passlib.hash import pbkdf2_sha256
 
 class AppUser(models.Model, RelatableModel):
     relation_name = 'user_id'
+
     class Meta:
         db_table = 'sl_users'
 
@@ -12,12 +13,14 @@ class AppUser(models.Model, RelatableModel):
     username = models.CharField(db_column='username', max_length=191, unique=True)
     password_hash = models.CharField(db_column='password_hash', max_length=200)
     
-    ''' only assume global colleges access on college_id == -1 '''  
+    ''' only assume global colleges access on college_id == -1 '''
     college_id = models.SmallIntegerField(db_column='college_id')
     role_param_id = models.SmallIntegerField(db_column='role_param_id')
 
     # Superuser, admin, regular user etc...
     auth_role = models.SmallIntegerField(db_column='type')
+    staff_role = models.SmallIntegerField(db_column='staff_role')  # shortcut to role_param.role
+
     invalidate = models.SmallIntegerField(db_column='invalidate', default=0)
     
     @classmethod

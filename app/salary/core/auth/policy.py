@@ -12,6 +12,7 @@ from .principals import (
     PR_UserId,
     PR_AuthRole,
     PR_ClgAccess,
+    PR_StaffRole
 )
 
 from .actions import Allow, Deny
@@ -61,6 +62,9 @@ class SimpleAuthPolicy(SessionCookieAuthnPolicy):
             # principals.append(PR_StaffRole(user.role_param_id...))
             if user.college_id != -1:
                 principals.append(PR_ClgAccess(user.college_id))
+
+            if user.role_param_id != 0:
+                principals.append(PR_StaffRole(user.staff_role))
 
         return tuple(principals)
 

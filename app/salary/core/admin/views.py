@@ -37,7 +37,7 @@ class ManagePermissions:
 class IndexManageView(View):
     def get(self, req: HttpRequest):
 
-        req.auth_manager.require_permissions_one(
+        req.auth_manager.require_perm(
             ManagePermissions, "station:read", "clg:read"
         )
 
@@ -50,7 +50,7 @@ class IndexManageView(View):
 
 class Action_CreateStation(View):
     def _transform_input(self, req, bag):
-        req.auth_manager.require_permissions_one(ManagePermissions, "station:create")
+        req.auth_manager.require_perm(ManagePermissions, "station:create")
 
         name = bag.get("name", None)
         if not name:
@@ -73,7 +73,7 @@ class Action_CreateStation(View):
 
 class Action_CreateCollege(View):
     def _transform_input(self, req, bag):
-        req.auth_manager.require_permissions_one(ManagePermissions, "clg:create")
+        req.auth_manager.require_perm(ManagePermissions, "clg:create")
 
         name = bag.get("name", None)
         if name == "":
@@ -95,3 +95,5 @@ class Action_CreateCollege(View):
         messages.success(req, "College added successfully")
 
         return utils.redirect_back(req)
+
+        

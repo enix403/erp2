@@ -68,8 +68,7 @@
         <div class="col-md-6">
             <h6 class="bp3-heading mb-sm">Combine New Sections</h6>
 
-            {% comment %} <form action="{% url 'sl_u:add-merged-section' %}" method="POST"> {% endcomment %}
-            <form>
+            <form method="POST" action="{% url 'sl_u:Section.AddMerged' %}">
                 {% csrf_token %}
                 <input type="hidden" name="college_id" value="{{ college.id }}">
 

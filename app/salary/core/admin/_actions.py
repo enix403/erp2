@@ -4,12 +4,14 @@ from app.salary.models import (
     College
 )
 
+
 def make_station(name: str):
     station = Station()
     station.name = name
     station.save()
     
     return station
+
 
 def make_subject(name):
     subject = Subject()

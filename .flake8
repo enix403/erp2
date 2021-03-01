@@ -1,0 +1,28 @@
+[flake8]
+extend-ignore = 
+    # unused import
+    F401,
+    # string literal too long (so dumb, like what if the client explicitly wants a long error message)
+    E501,
+    # Allow blank lines
+    W293,
+    # Too many blank lines
+    E303,
+    # Weird indentation errors (no idea what)
+    E116,
+    E126,
+    E117,
+    # Multiple Spaces
+    E241,
+    # Wildcard imports
+    F403,
+    # Lemme use except without catching the exception
+    E722
+
+exclude =
+    .git,
+    __pycache__,
+    .vscode,
+    storage,
+    
+max-complexity = 10

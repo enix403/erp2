@@ -1,6 +1,5 @@
 from app.salary.models import Section, MergeSectionRow
 
-
 class SectionType:
     REGULAR = 0
     MERGED = 1
@@ -23,7 +22,7 @@ def make_regular_section(college_id, name):
 
 
 def make_merged_section(college_id, name, children: list):
-    parent_section: Section = self._make_section(name, SectionType.MERGED)
+    parent_section: Section = create_section(college_id, name, SectionType.MERGED)
     parent_section.save()
 
     merge_rows_bulk = []

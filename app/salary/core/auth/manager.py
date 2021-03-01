@@ -1,3 +1,4 @@
+from typing import Optional
 from passlib.hash import pbkdf2_sha256
 from django.http import HttpRequest
 
@@ -15,7 +16,7 @@ class AuthManager:
     ):
 
         self.request = request
-        self.user = authn_policy.authenticated_user(request)  # type: AppUser
+        self.user = authn_policy.authenticated_user(request)  # type: Optional[AppUser]
         self.user_principals = authn_policy.effective_principals(
             self.user
         )  # type: list
@@ -23,7 +24,7 @@ class AuthManager:
         self.authn_policy = authn_policy
         self.authz_policy = authz_policy
 
-    def require_permissions_one(self, context, *permissions):
+    def require_perm(self, context, *permissions):
         """Checks if the user has atleast one of the given permissions"""
         for perm in permissions:
             permits = self.authz_policy.permits(context, self.user_principals, perm)
@@ -51,18 +52,21 @@ class AuthManager:
 
 
     def login(self, username, password):
+        # find user from database fail if user not found
         user = AppUser.objects.filter(username=username).first()
-
         if user is None:
             return False
 
+        # check password
         if not pbkdf2_sha256.verify(password, user.password_hash):
             return False
 
+        # mark session as refreshed if it was expired earlier
         if user.invalidate != 0:
            user.invalidate = 0
            user.save()
 
+        # save user in session cookie
         self.authn_policy.remember(self.request, user.pk)
         self.user = user
         self.refresh_principals()
@@ -74,3 +78,5 @@ class AuthManager:
         self.authn_policy.forget(self.request)
         self.user = None
         self.refresh_principals()
+
+        

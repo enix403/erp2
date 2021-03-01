@@ -16,6 +16,7 @@ Including another URLconf
 from django.urls import path, include
 from django.shortcuts import redirect
 
+
 import debug_toolbar
 
 urlpatterns = [

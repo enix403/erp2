@@ -39,7 +39,7 @@ def to_int(num, default = 0) -> int:
     # except:
         # return None
     
-def get_first(lst: list):
+def lst_first(lst: list):
     if lst:
         return lst[0]
 

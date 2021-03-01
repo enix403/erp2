@@ -27,8 +27,8 @@ class SectionPermissions:
 
 class SectionsView(View):
     def get(self, req: HttpRequest, college_id):
-        req.auth_manager.require_permissions_one(
-            SectionPermissions, "reg_sec:read", "meg_sec:create"
+        req.auth_manager.require_perm(
+            SectionPermissions, "reg_sec:read", "meg_sec:read"
         )
 
         college: College = College.objects.filter(pk=college_id).first()
@@ -95,7 +95,7 @@ class Action_CreateRegularSection(View, ValidateSectionCreationMixin):
         return self._validate_section(bag)
 
     def post(self, req: HttpRequest):
-        req.auth_manager.require_permissions_one(SectionPermissions, "reg_sec:create")
+        req.auth_manager.require_perm(SectionPermissions, "reg_sec:create")
 
         name, college = self._clean_input(req.POST)
         clg_validate_simple(req, college.pk)
@@ -105,28 +105,32 @@ class Action_CreateRegularSection(View, ValidateSectionCreationMixin):
         return utils.redirect_back(req)
 
 
-# class Action_CreateMergedSection(View, ValidateSectionCreationMixin):
-#     def _clean_input(self, bag):  # type: QueryDict
-#         college: College
-#         name, college = self._validate_section(bag)  # type: str, College
-#         section_id_list = list(map(helpers.to_int, bag.getlist('section_id')))
+class Action_CreateMergedSection(View, ValidateSectionCreationMixin):
+    def _clean_input(self, bag):  # type: QueryDict
+        name, college = self._validate_section(bag)  # type: str, College
+        section_id_list = list(map(utils.to_int, bag.getlist('section_id')))
 
-#         if len(section_id_list) < 2:
-#             raise UserLogicException("Select atleast two sections")
+        if len(section_id_list) < 2:
+            raise UserLogicException("Select atleast two sections")
 
-#         children = list(Section.objects.filter(pk__in=section_id_list).prefetch_related('college'))
-#         for child in children:
-#             if child.college.pk != college.pk:
-#                 raise UserLogicException("Invalid sections")
+        children = list(Section.objects.filter(pk__in=section_id_list))
 
-#         return name, college, children
+        if len(children) != len(section_id_list):
+           # Atleast one of the given sections was not found
+            raise UserLogicException("Cannot find section(s)")
 
-#     def post(self, req):
-#         bag = helpers.get_bag(req)
-#         name, college, children = self._clean_input(bag)
+        for child in children: # type: Section
+            if child.college_id != college.pk:
+                raise UserLogicException("Invalid sections")
 
-#         college_impl = l_college.Impl_College(college)
-#         college_impl.add_merged_section(name, children)
+        return name, college, children
 
-#         messages.success(req, 'Sections merged successfully')
-#         return helpers.redirect_back(req)
+    def post(self, req):
+        req.auth_manager.require_perm(SectionPermissions, "meg_sec:create")
+        bag = utils.get_bag(req)
+        name, college, children = self._clean_input(bag)
+
+        actions.make_merged_section(college.pk, name, children)
+
+        messages.success(req, 'Sections merged successfully')
+        return utils.redirect_back(req)

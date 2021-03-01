@@ -12,5 +12,6 @@ urlpatterns = [
     path('manage/',     include('app.salary.core.admin.routes')),
     path('auth/',       include('app.salary.core.auth.routes')),
     path('sectioning/', include('app.salary.core.section.routes')),
+    path('staff/',      include('app.salary.core.staff.routes')),
     # fmt: on
 ]

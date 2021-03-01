@@ -17,6 +17,8 @@ class RelatableModel:
             blank=null
         )
 
+    # objects: models.Manager
+
 
 class Station(models.Model, RelatableModel):
     relation_name = "station_id"
@@ -36,7 +38,7 @@ class College(models.Model, RelatableModel):
     station = Station.get_key("station_id", 'colleges')
 
     sections: models.Manager
-    # staffs: models.Manager
+    staffs: models.Manager
     # time_tables: models.Manager
     # role_params: models.Manager
     
