@@ -9,7 +9,7 @@ def simple_access_principals(college_id):
         PR_AuthRole(AuthRole.SUPERUSER)
     )
 
-def clg_validate_simple(request, college_id):
+def college_validate_simple(request, college_id):
     has_access = request.auth_manager.require_one(simple_access_principals(college_id))
     if not has_access:
         handle_unauthorized(request)

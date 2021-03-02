@@ -7,7 +7,7 @@ from django.contrib import messages
 from app.base import utils
 from app.salary.models import Station, College
 
-from app.salary.core.college import clg_validate_simple
+from app.salary.core.college import college_validate_simple
 
 from app.salary.core.exceptions import UserLogicException
 

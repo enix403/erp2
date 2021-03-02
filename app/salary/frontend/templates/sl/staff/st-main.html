@@ -7,6 +7,9 @@
 
 {% block content %}
 
+{% if permissions.create %}
+
+
 <div>
     <h6 class="bp3-heading">Add Staff</h6>
 
@@ -165,7 +168,9 @@
 </div>
 
 <hr>
+{% endif %}
 
+{% if permissions.read %}
 
 
 <div>
@@ -262,5 +267,6 @@
     </div><!-- table-responsive -->
 </div>
 
+{% endif %}
 
 {% endblock content %}

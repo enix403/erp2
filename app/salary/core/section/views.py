@@ -10,7 +10,7 @@ from app.salary.core.exceptions import UserLogicException
 from app.salary.models import Section, College
 
 from app.salary.core.auth import Allow, PR_AuthRole, AuthRole
-from app.salary.core.college import clg_validate_simple
+from app.salary.core.college import college_validate_simple
 from . import actions
 
 
@@ -35,7 +35,7 @@ class SectionsView(View):
         if college == None:
             raise Http404
 
-        clg_validate_simple(req, college.pk)
+        college_validate_simple(req, college.pk)
 
         active_sections = list(
             college.sections.filter(active=1).prefetch_related("merge_section_rows")
@@ -98,7 +98,7 @@ class Action_CreateRegularSection(View, ValidateSectionCreationMixin):
         req.auth_manager.require_perm(SectionPermissions, "reg_sec:create")
 
         name, college = self._clean_input(req.POST)
-        clg_validate_simple(req, college.pk)
+        college_validate_simple(req, college.pk)
         actions.make_regular_section(college.pk, name)
 
         messages.success(req, "Section added successfully")

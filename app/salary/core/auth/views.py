@@ -9,11 +9,14 @@ from app.salary.core.exceptions import UserLogicException
 
 class LoginView(View):
     def get(self, request: HttpRequest):
-        if request.auth_manager.user == None:
+        if request.auth_manager.user is None:
             return render(request, 'sl/login.html')
         return redirect('/')
 
     def post(self, request: HttpRequest):
+        if request.auth_manager.user is not None:
+            raise UserLogicException('Another user is already logged in')
+
         bag = request.POST
 
         username = bag.get('username', '')

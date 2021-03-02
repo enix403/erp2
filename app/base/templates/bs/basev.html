@@ -51,90 +51,6 @@
                     </a>
                 </li>
 
-                {% comment %} {% check_type 0 as flag %}
-                {% if flag %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:manage' %}" class="nav-link {% block sn-manage %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-comparison nav-list-icon"></span>
-                        Manage
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-transfers' %}" class="nav-link {% block sn-transfers %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-exchange nav-list-icon"></span>
-                        Staff Transfers
-                    </a>
-                </li>
-                {% endif %}
-
-                {% check_type 1 as flag %}
-                {% if flag %}
-
-
-                {% auth_check 'staff' 'read' 'write' as flag_2 %}
-                {% if flag_2 %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-staff' user_college_id %}"
-                        class="nav-link {% block sn-staff %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-people nav-list-icon"></span>
-                        Staff
-                    </a>
-                </li>
-                {% endif %}
-
-                {% auth_check 'sections' 'read' 'write' as flag_2 %}
-                {% if flag_2 %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-sections' user_college_id %}"
-                        class="nav-link {% block sn-sections %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-group-objects nav-list-icon"></span>
-                        Sections
-                    </a>
-                </li>
-                {% endif %}
-
-                {% auth_check 'timetable' 'read' 'write' as flag_2 %}
-                {% if flag_2 %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-timetable' user_college_id %}"
-                        class="nav-link {% block sn-tables %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-timeline-events nav-list-icon"></span>
-                        Time Tables
-                    </a>
-                </li>
-                {% endif %}
-
-                {% auth_check 'atnd_today' 'read' 'write' as flag_2 %}
-                {% if flag_2 %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:today-atnd' user_college_id %}"
-                        class="nav-link {% block sn-atnd %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-highlight nav-list-icon"></span>
-                        Attendance
-                    </a>
-                </li>
-                {% endif %}
-
-                {% auth_check 'lec_record_today' 'read' 'write' as flag_2 %}
-                {% if flag_2 %}
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-lecture-today' user_college_id %}"
-                        class="nav-link {% block sn-lecrd %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-send-to-graph nav-list-icon"></span>
-                        Lecture Recording
-                    </a>
-                </li>
-                {% endif %}
-
-                <li class="nav-item">
-                    <a href="{% url 'sl_u:view-atndauth' user_college_id %}"
-                        class="nav-link {% block sn-atndauth %}{% endblock %}">
-                        <span class="bp3-icon-large bp3-icon-automatic-updates nav-list-icon"></span>
-                        AAuth
-                    </a>
-                </li>
-                {% endif %} {% endcomment %}
 
             </ul>
 
@@ -145,12 +61,6 @@
                     <label>Reporting</label>
                 </li>
 
-                {% comment %} <li class="nav-item"> {% endcomment %}
-                    {% comment %} <a href="{% url 'sl_u:view-reports-main' %}" class="nav-link {% block sn-reports %}{% endblock %}"> {% endcomment %}
-                        {% comment %} <span class="bp3-icon-large bp3-icon-layout-hierarchy nav-list-icon"></span> {% endcomment %}
-                        {% comment %} Reports {% endcomment %}
-                    {% comment %} </a> {% endcomment %}
-                {% comment %} </li> {% endcomment %}
             </ul>
 
         </div>
@@ -162,7 +72,6 @@
         <div class="header">
             <div class="header-left">
                 <a href="" class="burger-menu link-no-underline">
-                    {% comment %} <i data-feather="menu"></i> {% endcomment %}
                     <span class="bp3-icon-large bp3-icon-menu"></span>
                 </a>
             </div>
@@ -211,7 +120,6 @@
         </div>
 
         <div class="content-body">
-            {% comment %} hello {% endcomment %}
             {% block content %}
             {% endblock content %}
         </div>
@@ -220,8 +128,6 @@
 
 
 
-    {% comment %} <script src="{% static "lib/feather-icons/feather.min.js" %}"></script> {% endcomment %}
-    {% comment %} <script src="{% static "lib/jquery/jquery.min.js" %}"></script> {% endcomment %}
     <script src="{% static "js/htmlapp.js" %}"></script>
 
     {% block js %}

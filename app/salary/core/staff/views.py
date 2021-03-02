@@ -27,15 +27,16 @@ from .constants import (
     StaffStatus
 )
 
-from app.salary.core.college import clg_validate_simple
+from app.salary.core.college import college_validate_simple
 from app.salary.core.auth import Allow, PR_AuthRole, PR_StaffRole, AuthRole
 
 
 class StaffPermissions:
     __acl__ = [
         (Allow, PR_AuthRole(AuthRole.SUPERUSER), ('staff:read', 'staff:create')),
-        (Allow, PR_StaffRole(roles.ROLE_PRINCIPLE), ('staff:read', 'staff:create')),
-        (Allow, PR_AuthRole(AuthRole.CLGSTAFF), 'staff:read')
+        (Allow, PR_AuthRole(AuthRole.CLGSTAFF), 'staff:read'), # All college staff can read
+
+        # (Allow, PR_StaffRole(roles.ROLE_PRINCIPLE), ('staff:create')), # Principal can also add staff
     ]
 
 
@@ -43,7 +44,7 @@ class StaffView(View):
 
     def roleparam_info(self, param: RoleParam):
         is_faculty = param.role == roles.ROLE_FACULTY
-        
+
         main_suffix = ' (Main)' if param.main == 1 else ''
 
         return {
@@ -56,7 +57,6 @@ class StaffView(View):
             'xrate': param.x_rate if is_faculty else '-',
             'salary': '{:,}'.format(param.salary)
         }
-        
 
     def staff_info(self, staff: Staff):
         active_roleparams = []
@@ -68,23 +68,22 @@ class StaffView(View):
             'name': staff.name,
             'cnic': staff.person.cnic,
             'gender': 'Male' if staff.person.gender == Gender.MALE else 'Female',
-            
+
             'rp_count': len(active_roleparams),
             'roleparams': [self.roleparam_info(r) for r in active_roleparams]
         }
 
-
     def staff_list(self, college: College):
 
         staff_qs = college.staffs.all() \
-                        .select_related('person') \
-                        .prefetch_related('role_params', 'fac_subjects')
+            .select_related('person') \
+            .prefetch_related('role_params', 'fac_subjects')
 
         return [self.staff_info(s) for s in staff_qs]  # TODO: filter staff
 
     def get(self, req: HttpRequest, college_id):
         req.auth_manager.require_perm(StaffPermissions, 'staff:create', 'staff:read')
-        clg_validate_simple(req, college_id)
+        college_validate_simple(req, college_id)
 
         college = College.objects.filter(pk=utils.to_int(college_id)).first()
 
@@ -98,9 +97,13 @@ class StaffView(View):
             'all_roles': roles.all_roles(),
             'subjects': Subject.objects.all(),
             'FacultyCategory': FacultyCategory,
-            'today': datetime.date.today().strftime(datetimeformat.DATE_USER_INPUT)
-        })
+            'today': datetime.date.today().strftime(datetimeformat.DATE_USER_INPUT),
 
+            'permissions': {
+                'create': req.auth_manager.permits(StaffPermissions, 'staff:create'),
+                'read': req.auth_manager.permits(StaffPermissions, 'staff:read'),
+            }
+        })
 
 
 class ValidateRoleParamMixin:
@@ -118,7 +121,7 @@ class ValidateRoleParamMixin:
             x_rate,
             salary,
             is_main,
-            
+
             date_start,
         )
 
@@ -128,7 +131,7 @@ class ValidateRoleParamMixin:
         if rpinfo.role_info is None:
             raise UserLogicException("Invalid role")
 
-        # TODO: handle duplicates
+        # TODO: handle staff role duplicates
 
         # if not rpinfo.role_info.duplicate:
         #     if college.role_params.filter(role=rpinfo.role_info.role, active=1).exists():
@@ -156,26 +159,23 @@ class ValidateRoleParamMixin:
             raise UserLogicException("Invalid salary")
 
 
-
 class Action_CreateStaff(View, ValidateRoleParamMixin):
 
     def post(self, req: HttpRequest):
+        req.auth_manager.require_perm(StaffPermissions, 'staff:create')
         bag = req.POST
-        
         college_id = utils.to_int(bag.get('college_id'))
+        college_validate_simple(req, college_id)
         college: College = College.objects.filter(pk=college_id).first()
-        
+
         if college is None:
             raise UserLogicException("College not found")
-        
-        # validate_college(college)
 
         name = bag.get('name')
         cnic = bag.get('cnic')
         bank_acc = bag.get('bank_acc')
         gender = utils.to_int(bag.get('gender'))
         erp_number = utils.to_int(bag.get('erp_number'))
-        
 
         try:
             # init_date = datetime_parser.parse(
@@ -187,7 +187,7 @@ class Action_CreateStaff(View, ValidateRoleParamMixin):
             ).date()
         except:
             init_date = None
-            
+
         try:
             # activate_date = datetime_parser.parse(
             #     bag.get('init_date'),
@@ -213,20 +213,18 @@ class Action_CreateStaff(View, ValidateRoleParamMixin):
 
         if gender != Gender.MALE and gender != Gender.FEMALE:
             raise UserLogicException("Invalid gender")
-        
-        
+
         rpinfo = self.get_rpinfo(bag, 1, activate_date)
         self.validate_rpinfo(college, rpinfo)
-        
+
         if rpinfo.role_info.role == roles.ROLE_FACULTY:
             # subject = Subject.objects.filter(pk=utils.to_int(bag.get('subject_id'))).first()
             # if subject is None:
-                # raise UserLogicException("Invalid subject")
+            # raise UserLogicException("Invalid subject")
             pass
-            
+
         else:
             subject = None
-
 
         # TODO: handle duplicate ERP Number
 
@@ -234,7 +232,6 @@ class Action_CreateStaff(View, ValidateRoleParamMixin):
             activate_date,
             rpinfo.role_info.role,
         )
-
 
         try:
             with transaction.atomic():
@@ -246,18 +243,18 @@ class Action_CreateStaff(View, ValidateRoleParamMixin):
                 person.bank_acc = bank_acc
                 person.init_date = init_date
                 person.save()
-                
+
                 staff = actions.add_new_staff(college, person, staff_payload)
                 staff.save()
-                
+
                 if staff_payload.main_role == roles.ROLE_FACULTY:
                     actions.add_staff_subject(staff, subject, 1).save()
-                
+
                 role_param = actions.add_staff_role(college, staff, rpinfo)
                 role_param.save()
                 staff.main_roleparam_obj = role_param
                 staff.save()
-                
+
         except:
             # TODO: log this error
             messages.error(req, "An error occured")
