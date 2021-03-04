@@ -86,7 +86,7 @@ class AclAuthorizationPolicy(IAuthorizationPolicy):
             perm_action, perm_pcpl, perm_name = ace
 
             if not is_nonstr_iter(perm_name):
-                perm_name = [perm_name]
+                perm_name = (perm_name,)
 
             if permission in perm_name:
                 if perm_pcpl in principals:

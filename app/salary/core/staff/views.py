@@ -1,16 +1,18 @@
 from __future__ import annotations
+from dateutil import parser as datetime_parser
+import datetime
+
 from django.shortcuts import render, redirect, reverse
 from django.views import View
 from django.contrib import messages
 from django.http import Http404
 from django.db import transaction
 
-from dateutil import parser as datetime_parser
-import datetime
-
 from app.base import utils, datetimeformat
 from app.salary.typehints import HttpRequest
 from app.salary.core.exceptions import UserLogicException
+from app.salary.core.college import college_validate_simple
+from app.salary.core.auth import PermissionCache
 
 from app.salary.models import (
     College,
@@ -26,18 +28,7 @@ from .constants import (
     Gender,
     StaffStatus
 )
-
-from app.salary.core.college import college_validate_simple
-from app.salary.core.auth import Allow, PR_AuthRole, PR_StaffRole, AuthRole
-
-
-class StaffPermissions:
-    __acl__ = [
-        (Allow, PR_AuthRole(AuthRole.SUPERUSER), ('staff:read', 'staff:create')),
-        (Allow, PR_AuthRole(AuthRole.CLGSTAFF), 'staff:read'), # All college staff can read
-
-        # (Allow, PR_StaffRole(roles.ROLE_PRINCIPLE), ('staff:create')), # Principal can also add staff
-    ]
+from .permissions import StaffPermissions
 
 
 class StaffView(View):
@@ -82,7 +73,9 @@ class StaffView(View):
         return [self.staff_info(s) for s in staff_qs]  # TODO: filter staff
 
     def get(self, req: HttpRequest, college_id):
-        req.auth_manager.require_perm(StaffPermissions, 'staff:create', 'staff:read')
+        perms = PermissionCache(req, StaffPermissions)
+        perms.require_perm('staff:create', 'staff:read')
+
         college_validate_simple(req, college_id)
 
         college = College.objects.filter(pk=utils.to_int(college_id)).first()
@@ -100,8 +93,8 @@ class StaffView(View):
             'today': datetime.date.today().strftime(datetimeformat.DATE_USER_INPUT),
 
             'permissions': {
-                'create': req.auth_manager.permits(StaffPermissions, 'staff:create'),
-                'read': req.auth_manager.permits(StaffPermissions, 'staff:read'),
+                'create': perms.permits('staff:create'),
+                'read': perms.permits('staff:read'),
             }
         })
 
@@ -132,10 +125,6 @@ class ValidateRoleParamMixin:
             raise UserLogicException("Invalid role")
 
         # TODO: handle staff role duplicates
-
-        # if not rpinfo.role_info.duplicate:
-        #     if college.role_params.filter(role=rpinfo.role_info.role, active=1).exists():
-        #         raise UserLogicException("A staff member with role of \"%s\" already exists" % rpinfo.role_info.name)
 
         if rpinfo.role_info.role == roles.ROLE_FACULTY:
 

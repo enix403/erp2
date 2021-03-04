@@ -17,7 +17,11 @@ extend-ignore =
     # Wildcard imports
     F403,
     # Lemme use except without catching the exception
-    E722
+    E722,
+    # blank line at end of the file
+    W391,
+    # two spaces before inline comment
+    E261,
 
 exclude =
     .git,

@@ -44,8 +44,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-    #! NOTE: make sure to read django-htmlmin docs if you
-    #! plan to enable django caching system
+    # ! NOTE: make sure to read django-htmlmin docs if you
+    # ! plan to enable django caching system
     'htmlmin.middleware.HtmlMinifyMiddleware',
     'htmlmin.middleware.MarkRequestMiddleware',
 ]
@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                # 'app.salary.ctxprocessors.links_info',
             ],
         },
     },
@@ -95,7 +96,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 SESSION_FILE_PATH = resolve_root('storage/sessions')
 
 STATIC_URL = '/static/'
-STATIC_ROOT = resolve_root('storage/assets') + '/' # target for collectstatic ( the ending '/' is required )
+STATIC_ROOT = resolve_root('storage/assets') + '/'  # target for collectstatic ( the ending '/' is required )
 
 
 # places to look for static assets

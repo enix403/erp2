@@ -15,6 +15,7 @@ from app.salary.core.auth.policy import SimpleAuthPolicy, AclAuthorizationPolicy
 
 # dklwahfkhawfjlwhlawhjfjlflwjkd
 
+
 def handle_user_exp(request: HttpRequest, exp: UserLogicException):
     if exp.route_name == None:
         response = utils.redirect_back(request)

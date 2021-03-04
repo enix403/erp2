@@ -6,32 +6,11 @@ from django.contrib import messages
 
 from app.base import utils
 from app.salary.models import Station, College
-
 from app.salary.core.college import college_validate_simple
-
 from app.salary.core.exceptions import UserLogicException
 
-from app.salary.core.auth.authroles import AuthRole
-from app.salary.core.auth.actions import Allow
-from app.salary.core.auth.principals import PR_AuthRole
-
 from . import _actions
-
-
-class ManagePermissions:
-    __acl__ = (
-        # fmt: off
-        (Allow, PR_AuthRole(AuthRole.SUPERUSER), [  'station:create', 
-                                                    'station:update', 
-                                                    'station:delete',
-                                                    'station:read',  ]),
-
-        (Allow, PR_AuthRole(AuthRole.SUPERUSER), [  'clg:create', 
-                                                    'clg:update', 
-                                                    'clg:delete',
-                                                    'clg:read', ]),
-        # fmt: on
-    )
+from .permissions import ManagePermissions
 
 
 class IndexManageView(View):
@@ -80,7 +59,7 @@ class Action_CreateCollege(View):
             raise UserLogicException("Invalid name")
 
         station = Station.objects.filter(pk=utils.to_int(bag.get("station_id"))).first()
-        if station == None:
+        if station is None:
             raise UserLogicException("Given station not found")
 
         if College.objects.filter(name=name).exists():

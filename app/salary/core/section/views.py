@@ -7,22 +7,12 @@ from app.salary.typehints import HttpRequest
 
 from app.base import utils
 from app.salary.core.exceptions import UserLogicException
+from app.salary.core.college import college_validate_simple
+
 from app.salary.models import Section, College
 
-from app.salary.core.auth import Allow, PR_AuthRole, AuthRole
-from app.salary.core.college import college_validate_simple
 from . import actions
-
-
-class SectionPermissions:
-    __acl__ = (
-        # fmt: off
-        (Allow, PR_AuthRole(AuthRole.SUPERUSER), (  'reg_sec:create',
-                                                    'meg_sec:create',
-                                                    'reg_sec:read',
-                                                    'meg_sec:read' )),
-        # fmt: on
-    )
+from .permissions import SectionPermissions
 
 
 class SectionsView(View):
@@ -81,7 +71,7 @@ class ValidateSectionCreationMixin(object):
             raise UserLogicException("Invalid name")
 
         college = College.objects.filter(pk=utils.to_int(bag.get("college_id"))).first()
-        if college == None:
+        if college is None:
             raise UserLogicException("College not found")
 
         if Section.objects.filter(name=name, college=college).exists():
@@ -91,7 +81,7 @@ class ValidateSectionCreationMixin(object):
 
 
 class Action_CreateRegularSection(View, ValidateSectionCreationMixin):
-    def _clean_input(self, bag):  # type: QueryDict
+    def _clean_input(self, bag):
         return self._validate_section(bag)
 
     def post(self, req: HttpRequest):
@@ -106,7 +96,7 @@ class Action_CreateRegularSection(View, ValidateSectionCreationMixin):
 
 
 class Action_CreateMergedSection(View, ValidateSectionCreationMixin):
-    def _clean_input(self, bag):  # type: QueryDict
+    def _clean_input(self, bag):
         name, college = self._validate_section(bag)  # type: str, College
         section_id_list = list(map(utils.to_int, bag.getlist('section_id')))
 
@@ -116,7 +106,7 @@ class Action_CreateMergedSection(View, ValidateSectionCreationMixin):
         children = list(Section.objects.filter(pk__in=section_id_list))
 
         if len(children) != len(section_id_list):
-           # Atleast one of the given sections was not found
+            # Atleast one of the given sections was not found
             raise UserLogicException("Cannot find section(s)")
 
         for child in children: # type: Section
